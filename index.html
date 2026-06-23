@@ -1,14 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-50">
+<html lang="en" class="h-full bg-slate-50/50">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KSA Multi-Subsidiary Group HR Command</title>
-    <!-- Tailwind CSS Engine -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Sans / Inter Typography -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Google Material Icons for beautiful vector iconography -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     
     <script>
@@ -51,246 +48,250 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
         }
+        .transition-panel {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
     </style>
 </head>
 <body class="h-full flex flex-col overflow-hidden text-slate-800 antialiased font-sans">
 
     <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-md pointer-events-none"></div>
 
-    <header class="bg-slate-900 text-white shrink-0 shadow-md relative z-20 px-6 py-4 flex items-center justify-between border-b border-slate-800">
+    <header class="bg-slate-900 text-white shrink-0 shadow-sm relative z-20 px-6 py-4 flex items-center justify-between border-b border-slate-800">
         <div class="flex items-center space-x-4">
-            <div class="bg-indigo-600 p-2 rounded-xl flex items-center justify-center shadow-inner">
-                <span class="material-icons-round text-white">lan</span>
+            <div class="bg-indigo-600/10 border border-indigo-500/30 p-2.5 rounded-xl flex items-center justify-center shadow-sm">
+                <span class="material-icons-round text-indigo-400">lan</span>
             </div>
             <div>
-                <h1 class="text-lg font-bold tracking-tight">KSA Group HR Command Center</h1>
-                <p class="text-[10px] text-slate-400 font-mono tracking-wider">MHRSD • QIWA • MUDAD UNIFIED BLUEPRINT</p>
+                <h1 class="text-base font-bold tracking-tight text-slate-100">KSA Group HR Command Center</h1>
+                <p class="text-[10px] text-slate-400 font-mono tracking-wider mt-0.5">MHRSD • QIWA • MUDAD UNIFIED BLUEPRINT</p>
             </div>
         </div>
 
         <div class="flex items-center space-x-3">
-            <!-- Connection Status indicator -->
-            <div id="api-status-pill" onclick="openSettingsModal()" class="cursor-pointer flex items-center space-x-2 bg-amber-500/10 border border-amber-500/30 px-3.5 py-1.5 rounded-full text-amber-400 text-xs font-semibold hover:bg-amber-500/20 transition-all">
+            <div id="api-status-pill" onclick="openSettingsModal()" class="cursor-pointer flex items-center space-x-2 bg-amber-500/10 border border-amber-500/20 px-3.5 py-1.5 rounded-xl text-amber-400 text-xs font-medium hover:bg-amber-500/20 transition-all">
                 <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
                 <span id="api-status-label">Sandbox Mode</span>
             </div>
 
-            <!-- Settings Button -->
-            <button onclick="openSettingsModal()" class="p-2 hover:bg-slate-800 rounded-xl transition text-slate-400 hover:text-white flex items-center">
-                <span class="material-icons-round">settings</span>
+            <button onclick="openSettingsModal()" class="p-2 hover:bg-slate-800 border border-transparent hover:border-slate-700/60 rounded-xl transition text-slate-400 hover:text-slate-200 flex items-center">
+                <span class="material-icons-round text-xl">settings</span>
             </button>
         </div>
     </header>
 
     <div class="flex flex-1 overflow-hidden">
         
-        <!-- Sidebar Controller Navigation -->
-        <nav class="w-64 bg-slate-800 text-slate-300 flex flex-col justify-between shrink-0 border-r border-slate-700 select-none">
-            <div class="p-4 space-y-1">
-                <!-- Strategic HQ Controls -->
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-2">Corporate Headquarters</p>
-                <button onclick="switchRole('HR')" id="btn-role-hr" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all bg-indigo-600 text-white shadow-md">
-                    <span class="material-icons-round text-base">verified_user</span>
-                    <span>Group HR Director</span>
-                </button>
+        <nav class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between shrink-0 border-r border-slate-800 select-none">
+            <div class="p-4 space-y-6">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-2.5">Corporate Headquarters</p>
+                    <button onclick="switchRole('HR')" id="btn-role-hr" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all bg-indigo-600 text-white shadow-sm shadow-indigo-600/10">
+                        <span class="material-icons-round text-lg">verified_user</span>
+                        <span>Group HR Director</span>
+                    </button>
+                </div>
                 
-                <div class="pt-6 mt-6 border-t border-slate-700">
-                    <!-- Subsidiary Operational Controls -->
-                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-2">Subsidiary Portals</p>
+                <div class="pt-2">
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-2.5">Subsidiary Portals</p>
                     <div class="space-y-1">
-                        <button onclick="switchRole('DIR_SUB03')" id="btn-role-sub3" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all text-slate-400 hover:bg-slate-700 hover:text-slate-100">
+                        <button onclick="switchRole('DIR_SUB03')" id="btn-role-sub3" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all text-slate-400 hover:bg-slate-800 hover:text-slate-200">
                             <span class="flex items-center space-x-3">
-                                <span class="material-icons-round text-sm">corporate_fare</span>
+                                <span class="material-icons-round text-slate-500 text-base">corporate_fare</span>
                                 <span>Sub 3: IT Engineering</span>
                             </span>
-                            <span class="text-[9px] bg-slate-900 border border-slate-700 px-1.5 py-0.5 rounded text-indigo-400">DIR</span>
+                            <span class="text-[9px] bg-slate-800 border border-slate-700 px-1.5 py-0.5 rounded text-indigo-400 font-mono">DIR</span>
                         </button>
-                        <button onclick="switchRole('DIR_SUB02')" id="btn-role-sub2" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all text-slate-400 hover:bg-slate-700 hover:text-slate-100">
+                        <button onclick="switchRole('DIR_SUB02')" id="btn-role-sub2" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all text-slate-400 hover:bg-slate-800 hover:text-slate-200">
                             <span class="flex items-center space-x-3">
-                                <span class="material-icons-round text-sm">local_shipping</span>
+                                <span class="material-icons-round text-slate-500 text-base">local_shipping</span>
                                 <span>Sub 2: Riyadh Logistics</span>
                             </span>
-                            <span class="text-[9px] bg-slate-900 border border-slate-700 px-1.5 py-0.5 rounded text-indigo-400">DIR</span>
+                            <span class="text-[9px] bg-slate-800 border border-slate-700 px-1.5 py-0.5 rounded text-indigo-400 font-mono">DIR</span>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Dashboard Metadata -->
-            <div class="p-4 border-t border-slate-700 bg-slate-900/40 text-[10px] text-slate-500 space-y-1.5">
-                <p class="font-bold text-slate-400 uppercase tracking-wider">Group Governance</p>
-                <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>CIPD Life-cycle Rules</div>
-                <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>WPS 48hr Max Caps</div>
-                <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Article 80 Disciplinary</div>
+            <div class="p-4 border-t border-slate-800 bg-slate-950/40 text-[10px] text-slate-400 space-y-2">
+                <p class="font-bold text-slate-500 uppercase tracking-wider">Group Governance Rules</p>
+                <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>CIPD Life-cycle Compliance</div>
+                <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>WPS 48hr Max Script Caps</div>
+                <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Article 80 Disciplinary Trail</div>
             </div>
         </nav>
 
-        <main class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+        <main class="flex-1 overflow-y-auto p-8 custom-scrollbar bg-slate-50/50">
 
-            <!-- TAB GROUP: STRATEGIC GROUP HR DIRECTOR command center -->
-            <div id="panel-hr" class="space-y-8">
-                <div class="border-b border-slate-200 pb-5">
-                    <h2 class="text-2xl font-bold tracking-tight text-slate-900">Group HR Master Control Board</h2>
-                    <p class="text-sm text-slate-500 mt-1">Strategic oversight panel tracking all 5 active business entities, real-time Nitaqat color bands, and unified WPS GOSI balances.</p>
+            <div id="panel-hr" class="space-y-8 transition-panel">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-slate-200 pb-5 gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold tracking-tight text-slate-900">Group HR Master Control Board</h2>
+                        <p class="text-xs text-slate-500 mt-1">Strategic oversight panel tracking all 5 active business entities, real-time Nitaqat color bands, and unified WPS GOSI balances.</p>
+                    </div>
                 </div>
 
-                <!-- HQ KPI CARDS -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
                         <div class="flex items-center justify-between text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Consolidated Staff</span>
-                            <span class="material-icons-round">groups</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Consolidated Roster</span>
+                            <span class="material-icons-round text-slate-400 text-lg">groups</span>
                         </div>
-                        <p class="text-3xl font-extrabold text-slate-900 mt-2" id="hq-kpi-count">--</p>
-                        <p class="text-[10px] text-slate-400 mt-1 font-mono">Active on Qiwa & GOSI</p>
+                        <div class="mt-4">
+                            <p class="text-2xl font-bold text-slate-900 tracking-tight" id="hq-kpi-count">--</p>
+                            <p class="text-[10px] text-slate-400 mt-1 font-mono">Active on Qiwa & GOSI</p>
+                        </div>
                     </div>
 
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
                         <div class="flex items-center justify-between text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Total Monthly Payroll</span>
-                            <span class="material-icons-round">payments</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Monthly Payroll</span>
+                            <span class="material-icons-round text-slate-400 text-lg">payments</span>
                         </div>
-                        <p class="text-3xl font-extrabold text-slate-900 mt-2" id="hq-kpi-payroll">--</p>
-                        <p class="text-[10px] text-slate-400 mt-1 font-mono">WPS Auditable (SAR/mo)</p>
+                        <div class="mt-4">
+                            <p class="text-2xl font-bold text-slate-900 tracking-tight" id="hq-kpi-payroll">--</p>
+                            <p class="text-[10px] text-slate-400 mt-1 font-mono">WPS Auditable (SAR/mo)</p>
+                        </div>
                     </div>
 
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
                         <div class="flex items-center justify-between text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Group Localization</span>
-                            <span class="material-icons-round">how_to_reg</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Group Localization</span>
+                            <span class="material-icons-round text-slate-400 text-lg">how_to_reg</span>
                         </div>
-                        <p class="text-3xl font-extrabold text-indigo-600 mt-2" id="hq-kpi-saudization">--</p>
-                        <p class="text-[10px] text-slate-400 mt-1 font-mono">Consolidated National %</p>
+                        <div class="mt-4">
+                            <p class="text-2xl font-bold text-indigo-600 tracking-tight" id="hq-kpi-saudization">--</p>
+                            <p class="text-[10px] text-slate-400 mt-1 font-mono">Consolidated National %</p>
+                        </div>
                     </div>
 
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm bg-indigo-50/10 border-indigo-100">
+                    <div class="bg-indigo-50/30 p-5 rounded-2xl border border-indigo-100 shadow-sm flex flex-col justify-between">
                         <div class="flex items-center justify-between text-indigo-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Action Alerts</span>
-                            <span class="material-icons-round">notification_important</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-500">Action Alerts</span>
+                            <span class="material-icons-round text-indigo-500 text-lg">notification_important</span>
                         </div>
-                        <p class="text-3xl font-extrabold text-indigo-900 mt-2" id="hq-kpi-alerts">--</p>
-                        <p class="text-[10px] text-indigo-600 mt-1 font-mono">Expiring Iqamas &lt; 60 Days</p>
+                        <div class="mt-4">
+                            <p class="text-2xl font-bold text-indigo-900 tracking-tight" id="hq-kpi-alerts">--</p>
+                            <p class="text-[10px] text-indigo-600 mt-1 font-mono">Expiring Iqamas &lt; 60 Days</p>
+                        </div>
                     </div>
                 </div>
 
                 <div class="border-b border-slate-200">
-                    <nav class="flex space-x-6">
-                        <button onclick="switchHrTab('subs')" id="btn-hr-tab-subs" class="border-b-2 border-indigo-600 py-3 text-sm font-semibold text-indigo-600">
+                    <nav class="flex space-x-6 -mb-px">
+                        <button onclick="switchHrTab('subs')" id="btn-hr-tab-subs" class="border-b-2 border-indigo-600 pb-3 text-xs font-semibold text-indigo-600 tracking-wide">
                             Subsidiary Nitaqat Health
                         </button>
-                        <button onclick="switchHrTab('employees')" id="btn-hr-tab-employees" class="border-b-2 border-transparent py-3 text-sm font-medium text-slate-500 hover:text-slate-700">
+                        <button onclick="switchHrTab('employees')" id="btn-hr-tab-employees" class="border-b-2 border-transparent pb-3 text-xs font-medium text-slate-500 hover:text-slate-800 tracking-wide transition">
                             Full Master Employee Registry
                         </button>
-                        <button onclick="switchHrTab('compliance')" id="btn-hr-tab-compliance" class="border-b-2 border-transparent py-3 text-sm font-medium text-slate-500 hover:text-slate-700">
+                        <button onclick="switchHrTab('compliance')" id="btn-hr-tab-compliance" class="border-b-2 border-transparent pb-3 text-xs font-medium text-slate-500 hover:text-slate-800 tracking-wide transition">
                             Nitaqat Simulator & Visa Block Rules
                         </button>
                     </nav>
                 </div>
 
-                <!-- HR SUBTAB 1: SUBSIDIARY HEALTH MATRIX -->
-                <div id="hr-tab-subs" class="space-y-6">
-                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold uppercase text-slate-500 tracking-wider">
-                                    <th class="p-4">Entity ID</th>
-                                    <th class="p-4">Subsidiary Legal Name</th>
-                                    <th class="p-4">Unified 700 ID</th>
-                                    <th class="p-4">Economic Activity (ISIC4)</th>
-                                    <th class="p-4">Nitaqat Band</th>
-                                    <th class="p-4 text-right">Localization Rate</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-hq-subs" class="divide-y divide-slate-100 text-xs">
-                                <!-- Data rows injected dynamically -->
-                            </tbody>
-                        </table>
+                <div id="hr-tab-subs" class="space-y-6 transition-panel">
+                    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold uppercase text-slate-500 tracking-wider">
+                                        <th class="p-4 pl-6">Entity ID</th>
+                                        <th class="p-4">Subsidiary Legal Name</th>
+                                        <th class="p-4">Unified 700 ID</th>
+                                        <th class="p-4">Economic Activity (ISIC4)</th>
+                                        <th class="p-4">Nitaqat Band</th>
+                                        <th class="p-4 pr-6 text-right">Localization Rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-hq-subs" class="divide-y divide-slate-100 text-xs">
+                                    </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
-                <!-- HR SUBTAB 2: UNRESTRICTED SYSTEM EMPLOYEE LIST (WPS AUDIT READY) -->
-                <div id="hr-tab-employees" class="space-y-6 hidden">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-bold text-slate-900">Consolidated Corporate Roster</h3>
-                        
-                        <!-- WPS CSV Download Actions -->
-                        <button onclick="triggerWpsCsvDownload()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-sm">
-                            <span class="material-icons-round text-sm">download_for_offline</span>
+                <div id="hr-tab-employees" class="space-y-6 hidden transition-panel">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Consolidated Corporate Roster</h3>
+                        <button onclick="triggerWpsCsvDownload()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-sm shadow-indigo-600/5">
+                            <span class="material-icons-round text-base">download_for_offline</span>
                             <span>Generate Mudad WPS CSV File</span>
                         </button>
                     </div>
 
-                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold uppercase text-slate-500 tracking-wider">
-                                    <th class="p-4">Emp ID</th>
-                                    <th class="p-4">Entity</th>
-                                    <th class="p-4">Full Name</th>
-                                    <th class="p-4">Iqama / Nat ID</th>
-                                    <th class="p-4">Profession (Qiwa)</th>
-                                    <th class="p-4 text-right">Basic Wage</th>
-                                    <th class="p-4 text-right">Allowances</th>
-                                    <th class="p-4 text-right font-bold">Total Wage (WPS)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-hq-employees" class="divide-y divide-slate-100 text-xs">
-                                <!-- Data rows injected dynamically -->
-                            </tbody>
-                        </table>
+                    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold uppercase text-slate-500 tracking-wider">
+                                        <th class="p-4 pl-6">Emp ID</th>
+                                        <th class="p-4">Entity</th>
+                                        <th class="p-4">Full Name</th>
+                                        <th class="p-4">Iqama / Nat ID</th>
+                                        <th class="p-4">Profession (Qiwa)</th>
+                                        <th class="p-4 text-right">Basic Wage</th>
+                                        <th class="p-4 text-right">Allowances</th>
+                                        <th class="p-4 pr-6 text-right font-bold">Total Wage (WPS)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-hq-employees" class="divide-y divide-slate-100 text-xs">
+                                    </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
-                <!-- HR SUBTAB 3: PREDICTIVE NITAQAT SIMULATOR -->
-                <div id="hr-tab-compliance" class="space-y-6 hidden">
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div id="hr-tab-compliance" class="space-y-6 hidden transition-panel">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         
-                        <!-- Scenario Form -->
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                            <h3 class="text-base font-bold text-slate-900">Predictive Hire Simulator</h3>
-                            <p class="text-xs text-slate-500">Predict Nitaqat color shifts immediately *before* purchasing a visa slot on Qiwa to prevent pipeline lockouts.</p>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4 h-fit">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Predictive Hire Simulator</h3>
+                                <p class="text-xs text-slate-500 mt-1">Predict Nitaqat color shifts immediately *before* purchasing a visa slot on Qiwa to prevent pipeline lockouts.</p>
+                            </div>
 
-                            <div class="space-y-3">
+                            <div class="space-y-4 pt-2">
                                 <div>
-                                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Target Subsidiary</label>
-                                    <select id="sim-input-sub" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Target Subsidiary</label>
+                                    <select id="sim-input-sub" class="w-full bg-slate-50/50 border border-slate-200 p-2.5 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition">
                                         <option value="SUB_03">Future IT Consultations</option>
                                         <option value="SUB_04">Arabian Gulf Engineering</option>
                                     </select>
                                 </div>
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Add Saudi Hires</label>
-                                        <input type="number" id="sim-input-saudis" min="0" value="0" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Add Saudi Hires</label>
+                                        <input type="number" id="sim-input-saudis" min="0" value="0" class="w-full bg-slate-50/50 border border-slate-200 p-2.5 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition">
                                     </div>
                                     <div>
-                                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Add Expats Hires</label>
-                                        <input type="number" id="sim-input-expats" min="0" value="0" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Add Expats Hires</label>
+                                        <input type="number" id="sim-input-expats" min="0" value="0" class="w-full bg-slate-50/50 border border-slate-200 p-2.5 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition">
                                     </div>
                                 </div>
-                                <button onclick="calculateSimulatorCompliance()" class="w-full bg-slate-900 hover:bg-slate-800 text-white p-3 rounded-xl text-xs font-bold transition shadow-sm">
+                                <button onclick="calculateSimulatorCompliance()" class="w-full bg-slate-950 hover:bg-slate-800 text-white p-3 rounded-xl text-xs font-semibold transition shadow-sm mt-2">
                                     Run Predictor Model
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Prediction Outcome Card -->
-                        <div id="sim-result-card" class="lg:col-span-2 bg-indigo-950 text-white p-6 rounded-2xl border border-indigo-900 shadow-lg flex flex-col justify-between hidden">
-                            <div class="space-y-3">
+                        <div id="sim-result-card" class="lg:col-span-2 bg-slate-900 text-white p-6 rounded-2xl border border-slate-800 shadow-md flex flex-col justify-between hidden transition-panel">
+                            <div class="space-y-4">
                                 <div class="flex items-center space-x-2 text-indigo-400">
-                                    <span class="material-icons-round">analytics</span>
-                                    <span class="text-xs font-bold uppercase tracking-widest">Nitaqat Simulator Feedback</span>
+                                    <span class="material-icons-round text-base">analytics</span>
+                                    <span class="text-[10px] font-bold uppercase tracking-widest">Nitaqat Simulator Feedback</span>
                                 </div>
-                                <h4 class="text-lg font-bold" id="sim-result-title">Simulation Output Ready</h4>
-                                <div class="p-4 bg-slate-950/40 rounded-xl space-y-2 text-xs font-mono text-slate-300">
-                                    <div class="flex justify-between"><span>Active Headcount:</span><span id="sim-res-headcount">--</span></div>
-                                    <div class="flex justify-between"><span>New Saudization rate:</span><span id="sim-res-saudi">--</span></div>
-                                    <div class="flex justify-between"><span>Projected Nitaqat Tier:</span><span id="sim-res-tier">--</span></div>
+                                <h4 class="text-base font-bold text-slate-100" id="sim-result-title">Simulation Output Ready</h4>
+                                <div class="p-4 bg-slate-950/50 border border-slate-800/60 rounded-xl space-y-2.5 text-xs font-mono text-slate-300">
+                                    <div class="flex justify-between"><span>Active Headcount:</span><span id="sim-res-headcount" class="text-white font-bold">--</span></div>
+                                    <div class="flex justify-between"><span>New Saudization rate:</span><span id="sim-res-saudi" class="text-white font-bold">--</span></div>
+                                    <div class="flex justify-between"><span>Projected Nitaqat Tier:</span><span id="sim-res-tier" class="text-indigo-400 font-bold">--</span></div>
                                 </div>
                             </div>
-                            <div class="bg-indigo-900/40 border border-indigo-800 p-3.5 rounded-xl text-xs text-indigo-200 mt-4 flex items-start gap-2">
-                                <span class="material-icons-round text-sm">info_outline</span>
-                                <span id="sim-res-advice">No feedback calculated yet.</span>
+                            <div class="bg-slate-950/40 border border-slate-800 p-4 rounded-xl text-xs text-slate-300 mt-6 flex items-start gap-3">
+                                <span class="material-icons-round text-indigo-400 text-sm mt-0.5">info_outline</span>
+                                <span id="sim-res-advice" class="leading-relaxed">No feedback calculated yet.</span>
                             </div>
                         </div>
 
@@ -298,157 +299,150 @@
                 </div>
             </div>
 
-            <!-- TAB GROUP: RESTRICTED SUBSIDIARY OPERATIONS WORKSPACE -->
-            <div id="panel-director" class="space-y-8 hidden">
+            <div id="panel-director" class="space-y-8 hidden transition-panel">
                 <div class="border-b border-slate-200 pb-5">
-                    <h2 class="text-2xl font-bold tracking-tight text-slate-900" id="dir-panel-title">Subsidiary Director Workspace</h2>
-                    <p class="text-sm text-slate-500 mt-1">Operational view containing strict database sandboxes: sensitive salaries are censored, and Iqama numbers are masked.</p>
+                    <h2 class="text-xl font-bold tracking-tight text-slate-900" id="dir-panel-title">Subsidiary Director Workspace</h2>
+                    <p class="text-xs text-slate-500 mt-1">Operational view containing strict database sandboxes: sensitive salaries are censored, and Iqama numbers are masked.</p>
                 </div>
 
-                <!-- KPI BLOCKS -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
                         <div class="flex items-center justify-between text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Active Local Team</span>
-                            <span class="material-icons-round">person</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Active Local Team</span>
+                            <span class="material-icons-round text-slate-400 text-lg">person</span>
                         </div>
-                        <p class="text-3xl font-extrabold text-slate-900 mt-2" id="dir-kpi-count">--</p>
+                        <p class="text-2xl font-bold text-slate-900 mt-4 tracking-tight" id="dir-kpi-count">--</p>
                         <p class="text-[10px] text-slate-400 mt-1">Direct Reports assigned to your node</p>
                     </div>
 
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm border-l-rose-500 border-l-2">
                         <div class="flex items-center justify-between text-slate-400">
-                            <span class="text-xs font-bold uppercase tracking-wider">Sensitive Wage Access</span>
-                            <span class="material-icons-round">visibility_off</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-rose-500">Sensitive Wage Access</span>
+                            <span class="material-icons-round text-rose-400 text-lg">visibility_off</span>
                         </div>
-                        <p class="text-3xl font-extrabold text-rose-500 mt-2">RESTRICTED</p>
+                        <p class="text-lg font-bold text-rose-600 mt-4 tracking-wide uppercase">Restricted Panel</p>
                         <p class="text-[10px] text-slate-400 mt-1">All financial matrices dropped at API level</p>
                     </div>
 
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm bg-emerald-50/10 border-emerald-100">
+                    <div class="bg-emerald-50/20 p-5 rounded-2xl border border-emerald-100">
                         <div class="flex items-center justify-between text-emerald-600">
-                            <span class="text-xs font-bold uppercase tracking-wider">Compliance Band</span>
-                            <span class="material-icons-round">gavel</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Compliance Band</span>
+                            <span class="material-icons-round text-emerald-500 text-lg">gavel</span>
                         </div>
-                        <p class="text-3xl font-extrabold text-emerald-600 mt-2">Green Band</p>
+                        <p class="text-2xl font-bold text-emerald-600 mt-4 tracking-tight">Green Band</p>
                         <p class="text-[10px] text-emerald-500 mt-1">Active visa pathways operational</p>
                     </div>
                 </div>
 
-                <!-- SYSTEM INPUT FORM DECKS -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     
-                    <!-- Form 1: Overtime Logging -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                        <div class="flex items-center space-x-2 text-indigo-600">
-                            <span class="material-icons-round text-lg">alarm_add</span>
-                            <h3 class="text-base font-bold text-slate-900">Log Blind Overtime Hours</h3>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                        <div class="flex items-center space-x-2.5 text-indigo-600">
+                            <span class="material-icons-round text-base">alarm_add</span>
+                            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Log Blind Overtime Hours</h3>
                         </div>
-                        <p class="text-xs text-slate-500">Record overtime hours for compensation. The API dynamically calculates 150% payments behind the scenes based on secret basic wage parameters.</p>
+                        <p class="text-xs text-slate-500 leading-relaxed">Record overtime hours for compensation. The API dynamically calculates 150% payments behind the scenes based on secret basic wage parameters.</p>
 
-                        <div class="space-y-3">
+                        <div class="space-y-4 pt-2">
                             <div>
-                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Select Team Member</label>
-                                <select id="form-ot-emp" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                    <!-- Dynamic select list elements injected -->
-                                </select>
+                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Select Team Member</label>
+                                <select id="form-ot-emp" class="w-full bg-slate-50/50 border border-slate-200 p-2.5 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition">
+                                    </select>
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Actual Overtime Hours (Weekly Max Limit: 8 hours)</label>
-                                <input type="number" id="form-ot-hours" min="1" max="10" value="2" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Actual Overtime Hours (Weekly Max Limit: 8 hours)</label>
+                                <input type="number" id="form-ot-hours" min="1" max="10" value="2" class="w-full bg-slate-50/50 border border-slate-200 p-2.5 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition">
                             </div>
-                            <button onclick="submitOvertimeLogs()" class="w-full bg-slate-900 hover:bg-slate-800 text-white p-3 rounded-xl text-xs font-bold transition shadow-sm">
+                            <button onclick="submitOvertimeLogs()" class="w-full bg-slate-950 hover:bg-slate-800 text-white p-3 rounded-xl text-xs font-semibold transition shadow-sm mt-2">
                                 Submit Overtime Record to HQ
                             </button>
                         </div>
                     </div>
 
-                    <!-- Form 2: Disciplinary Incident Tracker -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                        <div class="flex items-center space-x-2 text-indigo-600">
-                            <span class="material-icons-round text-lg">report</span>
-                            <h3 class="text-base font-bold text-slate-900">Legal Disciplinary Logger (Article 80 Trail)</h3>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                        <div class="flex items-center space-x-2.5 text-indigo-600">
+                            <span class="material-icons-round text-base">report</span>
+                            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Legal Disciplinary Logger (Article 80 Trail)</h3>
                         </div>
-                        <p class="text-xs text-slate-500">Formally record workspace policy infractions to build the legally mandated paper warning structure required by KSA labor courts.</p>
+                        <p class="text-xs text-slate-500 leading-relaxed">Formally record workspace policy infractions to build the legally mandated paper warning structure required by KSA labor courts.</p>
 
-                        <div class="space-y-3">
+                        <div class="space-y-4 pt-2">
                             <div>
-                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Select Employee</label>
-                                <select id="form-inc-emp" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                    <!-- Dynamic select list elements injected -->
-                                </select>
+                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Select Employee</label>
+                                <select id="form-inc-emp" class="w-full bg-slate-50/50 border border-slate-200 p-2.5 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition">
+                                    </select>
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Infraction Category</label>
-                                <select id="form-inc-type" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Infraction Category</label>
+                                <select id="form-inc-type" class="w-full bg-slate-50/50 border border-slate-200 p-2.5 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition">
                                     <option value="Unexcused Absence">Unexcused Absence (Automatic deduction request)</option>
                                     <option value="Safety Protocol Breach">Safety/Security violation under Article 80</option>
                                     <option value="Operational Insubordination">Disregarding official workflows & directives</option>
                                 </select>
                             </div>
-                            <button onclick="submitIncidentReport()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-xl text-xs font-bold transition shadow-sm">
+                            <button onclick="submitIncidentReport()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-xl text-xs font-semibold transition shadow-sm mt-2">
                                 Issue Official Legal Warning notice
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- RESTRICTED COMPLIANCE EMPLOYEE ROSTER -->
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
-                        <h3 class="text-sm font-bold uppercase text-slate-900 tracking-wider">My Operational Team</h3>
-                        <span class="bg-emerald-100 text-emerald-800 border border-emerald-200 px-3 py-1 rounded-full text-[10px] font-bold uppercase">
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <h3 class="text-xs font-bold uppercase text-slate-900 tracking-wider">My Operational Team</h3>
+                        <span class="bg-emerald-50 text-emerald-700 border border-emerald-100 px-3 py-1 rounded-xl text-[10px] font-semibold uppercase tracking-wider">
                             Privacy Masking Filter Operational
                         </span>
                     </div>
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold uppercase text-slate-500 tracking-wider">
-                                <th class="p-4">Emp ID</th>
-                                <th class="p-4">Entity</th>
-                                <th class="p-4">Full Name</th>
-                                <th class="p-4">Iqama / National ID</th>
-                                <th class="p-4">Profession</th>
-                                <th class="p-4 text-right">Basic Wage</th>
-                                <th class="p-4 text-right">Allowances</th>
-                                <th class="p-4 text-right font-bold">Total Wage</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-dir-employees" class="divide-y divide-slate-100 text-xs">
-                            <!-- Data rows injected dynamically -->
-                        </tbody>
-                    </table>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold uppercase text-slate-500 tracking-wider">
+                                    <th class="p-4 pl-6">Emp ID</th>
+                                    <th class="p-4">Entity</th>
+                                    <th class="p-4">Full Name</th>
+                                    <th class="p-4">Iqama / National ID</th>
+                                    <th class="p-4">Profession</th>
+                                    <th class="p-4 text-right">Basic Wage</th>
+                                    <th class="p-4 text-right">Allowances</th>
+                                    <th class="p-4 pr-6 text-right font-bold">Total Wage</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-dir-employees" class="divide-y divide-slate-100 text-xs">
+                                </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
         </main>
     </div>
 
-    <div id="modal-settings" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm transition-opacity duration-300 pointer-events-none opacity-0">
-        <div class="bg-white max-w-lg w-full mx-4 rounded-2xl shadow-xl border border-slate-200 overflow-hidden transform scale-95 transition-transform duration-300">
-            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-                <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-                    <span class="material-icons-round text-indigo-600">settings</span>
+    <div id="modal-settings" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm transition-opacity duration-300 pointer-events-none opacity-0">
+        <div class="bg-white max-w-lg w-full mx-4 rounded-2xl shadow-xl border border-slate-200/80 overflow-hidden transform scale-95 transition-transform duration-300">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2 uppercase tracking-wider">
+                    <span class="material-icons-round text-indigo-600 text-lg">settings</span>
                     <span>System Integration Gateway</span>
                 </h3>
-                <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-600 font-bold font-mono">×</button>
+                <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold font-mono transition">×</button>
             </div>
             <div class="p-6 space-y-4">
-                <p class="text-xs text-slate-500">Deploy your Apps Script as a web app. Paste the Web App link below to sync with Google Sheets. Clear the input to return to local sandbox simulator mode.</p>
+                <p class="text-xs text-slate-500 leading-relaxed">Deploy your Apps Script as a web app. Paste the Web App link below to sync with Google Sheets. Clear the input to return to local sandbox simulator mode.</p>
                 <div>
-                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Google Sheets API URL</label>
-                    <input type="text" id="setting-api-url" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Google Sheets API URL</label>
+                    <input type="text" id="setting-api-url" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs font-mono text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition">
                 </div>
-                <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl text-[11px] text-indigo-800 space-y-1">
+                <div class="bg-indigo-50/40 border border-indigo-100 p-4 rounded-xl text-[11px] text-indigo-800 space-y-1 leading-relaxed">
                     <p class="font-bold">Need a live connection?</p>
-                    <p>Wipe the default code in Apps Script, copy code from `code.gs` in your repository workspace, deploy, and paste the endpoint above.</p>
+                    <p class="text-indigo-900/80">Wipe the default code in Apps Script, copy code from `code.gs` in your repository workspace, deploy, and paste the endpoint above.</p>
                 </div>
             </div>
-            <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end space-x-2">
-                <button onclick="closeSettingsModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold px-4 py-2 rounded-xl transition">
+            <div class="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex justify-end space-x-2.5">
+                <button onclick="closeSettingsModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl transition">
                     Close Panel
                 </button>
-                <button onclick="saveApiUrlSetting()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-sm">
+                <button onclick="saveApiUrlSetting()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-sm shadow-indigo-600/10">
                     Connect Gateway
                 </button>
             </div>
@@ -490,7 +484,6 @@
         let currentSubsidiaries = [];
 
         window.onload = function() {
-            // Check cache first; fallback to pre-configured live endpoint
             const cachedUrl = localStorage.getItem("ksa_group_api_url");
             if (cachedUrl) {
                 systemApiUrl = cachedUrl;
@@ -500,32 +493,31 @@
                 document.getElementById('setting-api-url').value = systemApiUrl;
                 setApiStatus(true);
             }
-            // Load and render screen dashboard
             reloadSystemData();
         };
 
         function pushToast(message, type = "success") {
             const container = document.getElementById("toast-container");
             const toast = document.createElement("div");
-            toast.className = `flex items-center gap-3 p-4 rounded-xl shadow-lg border text-xs font-semibold transition-all duration-300 transform translate-x-12 opacity-0 pointer-events-auto bg-white`;
+            toast.className = `flex items-center gap-3.5 p-4 rounded-xl shadow-md border text-xs font-semibold transition-all duration-300 transform translate-x-12 opacity-0 pointer-events-auto bg-white`;
             
-            let colorClasses = "border-emerald-100 text-emerald-800 bg-emerald-50";
+            let colorClasses = "border-emerald-100 text-emerald-800 bg-emerald-50/80 backdrop-blur-sm";
             let icon = "check_circle";
 
             if (type === "warning") {
-                colorClasses = "border-amber-100 text-amber-800 bg-amber-50";
+                colorClasses = "border-amber-100 text-amber-800 bg-amber-50/80 backdrop-blur-sm";
                 icon = "warning";
             } else if (type === "error") {
-                colorClasses = "border-rose-100 text-rose-800 bg-rose-50";
+                colorClasses = "border-rose-100 text-rose-800 bg-rose-50/80 backdrop-blur-sm";
                 icon = "error";
             }
 
             toast.className += ` ${colorClasses}`;
             
             toast.innerHTML = `
-                <span class="material-icons-round text-sm">${icon}</span>
-                <span class="flex-1">${message}</span>
-                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 font-bold">&times;</button>
+                <span class="material-icons-round text-base">${icon}</span>
+                <span class="flex-1 leading-normal">${message}</span>
+                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 font-bold text-base">&times;</button>
             `;
 
             container.appendChild(toast);
@@ -540,20 +532,18 @@
             }, 6000);
         }
 
-        /* Set Connection status icons */
         function setApiStatus(connected) {
             const pill = document.getElementById('api-status-pill');
             const label = document.getElementById('api-status-label');
             if (connected) {
-                pill.className = "cursor-pointer flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1.5 rounded-full text-emerald-400 text-xs font-semibold hover:bg-emerald-500/20 transition-all";
+                pill.className = "cursor-pointer flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-1.5 rounded-xl text-emerald-500 text-xs font-medium hover:bg-emerald-500/20 transition-all";
                 label.textContent = "Live Sheet Sync Active";
             } else {
-                pill.className = "cursor-pointer flex items-center space-x-2 bg-amber-500/10 border border-amber-500/30 px-3.5 py-1.5 rounded-full text-amber-400 text-xs font-semibold hover:bg-amber-500/20 transition-all";
+                pill.className = "cursor-pointer flex items-center space-x-2 bg-amber-500/10 border border-amber-500/20 px-3.5 py-1.5 rounded-xl text-amber-500 text-xs font-medium hover:bg-amber-500/20 transition-all";
                 label.textContent = "Sandbox Mode";
             }
         }
 
-        /* Settings modal functions */
         function openSettingsModal() {
             const modal = document.getElementById('modal-settings');
             modal.classList.remove('pointer-events-none', 'opacity-0');
@@ -585,7 +575,6 @@
 
         async function reloadSystemData() {
             if (systemApiUrl) {
-                // Secure live execution to target Google Apps Script Web App
                 try {
                     let roleParam = (currentRole === 'HR') ? 'HR' : 'Director';
                     let queryUrl = `${systemApiUrl}?action=getEmployees&role=${roleParam}`;
@@ -617,12 +606,10 @@
         }
 
         function fallbackToSandbox() {
-            // Apply filtering rules simulated precisely at the local sandbox level
             if (currentRole === 'HR') {
                 currentEmployees = JSON.parse(JSON.stringify(SANDBOX_EMPLOYEES));
                 currentSubsidiaries = JSON.parse(JSON.stringify(SANDBOX_SUBSIDIARIES));
             } else {
-                // Director Sandbox Filtration - drop sensitive wages, filter reports, mask Iqama
                 const filteredList = SANDBOX_EMPLOYEES.filter(emp => emp.Line_Manager_ID === currentRole);
                 currentEmployees = filteredList.map(emp => {
                     const cleanObj = { ...emp };
@@ -631,11 +618,10 @@
                     cleanObj.Transport_Allow = "[CENSORED - CORP HQ]";
                     
                     const iqamaStr = cleanObj.Iqama_National_ID.toString();
-                    cleanObj.Iqama_National_ID = iqamaStr.substring(0, 2) + "*****" + iqamaStr.substring(iqamaStr.length - 3);
+                    cleanObj.Iqama_National_ID = iqamaStr.substring(0, 2) + "******" + iqamaStr.substring(iqamaStr.length - 2);
                     return cleanObj;
                 });
 
-                // Censor detailed sub metrics for local directors
                 currentSubsidiaries = SANDBOX_SUBSIDIARIES.map(sub => ({
                     Sub_ID: sub.Sub_ID,
                     Entity_Name: sub.Entity_Name,
@@ -647,19 +633,18 @@
         function switchRole(roleKey) {
             currentRole = roleKey;
             
-            // Adjust navigation styling
             const hrBtn = document.getElementById('btn-role-hr');
             const sub3Btn = document.getElementById('btn-role-sub3');
             const sub2Btn = document.getElementById('btn-role-sub2');
 
-            hrBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all " + 
-                (roleKey === 'HR' ? "bg-indigo-600 text-white shadow-md" : "text-slate-400 hover:bg-slate-700 hover:text-slate-100");
+            hrBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all " + 
+                (roleKey === 'HR' ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/10" : "text-slate-400 hover:bg-slate-800 hover:text-slate-200");
             
             sub3Btn.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all " + 
-                (roleKey === 'DIR_SUB03' ? "bg-indigo-600 text-white shadow-md" : "text-slate-400 hover:bg-slate-700 hover:text-slate-100");
+                (roleKey === 'DIR_SUB03' ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/10" : "text-slate-400 hover:bg-slate-800 hover:text-slate-200");
             
             sub2Btn.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all " + 
-                (roleKey === 'DIR_SUB02' ? "bg-indigo-600 text-white shadow-md" : "text-slate-400 hover:bg-slate-700 hover:text-slate-100");
+                (roleKey === 'DIR_SUB02' ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/10" : "text-slate-400 hover:bg-slate-800 hover:text-slate-200");
 
             if (roleKey === 'HR') {
                 document.getElementById('panel-hr').classList.remove('hidden');
@@ -670,7 +655,7 @@
                 document.getElementById('panel-director').classList.remove('hidden');
                 
                 const subName = (roleKey === 'DIR_SUB03') ? 'Future IT Engineering' : 'Riyadh Logistics';
-                document.getElementById('dir-panel-title').textContent = `${subName} Operations portal`;
+                document.getElementById('dir-panel-title').textContent = `${subName} Operations Portal`;
                 pushToast(`Context loaded: Director. Clean data border activated.`);
             }
 
@@ -681,11 +666,11 @@
             const tabs = ['subs', 'employees', 'compliance'];
             tabs.forEach(t => {
                 document.getElementById(`hr-tab-${t}`).classList.add('hidden');
-                document.getElementById(`btn-hr-tab-${t}`).className = "border-b-2 border-transparent py-3 text-sm font-medium text-slate-500 hover:text-slate-700 transition";
+                document.getElementById(`btn-hr-tab-${t}`).className = "border-b-2 border-transparent pb-3 text-xs font-medium text-slate-500 hover:text-slate-800 transition";
             });
 
             document.getElementById(`hr-tab-${tabId}`).classList.remove('hidden');
-            document.getElementById(`btn-hr-tab-${tabId}`).className = "border-b-2 border-indigo-600 py-3 text-sm font-bold text-indigo-600 transition";
+            document.getElementById(`btn-hr-tab-${tabId}`).className = "border-b-2 border-indigo-600 pb-3 text-xs font-semibold text-indigo-600 transition";
         }
 
         function renderPortalView() {
@@ -697,7 +682,6 @@
         }
 
         function renderHrCommandDashboard() {
-            // Count metrics
             const headcount = currentEmployees.length;
             const alerts = currentEmployees.filter(emp => {
                 const diffTime = new Date(emp.Iqama_Expiry) - new Date("2026-06-23");
@@ -725,47 +709,45 @@
             document.getElementById('hq-kpi-saudization').textContent = `${saudizationRate}%`;
             document.getElementById('hq-kpi-alerts').textContent = alerts;
 
-            // Render Subsidiary compliance table
             const subsTable = document.getElementById('table-hq-subs');
             subsTable.innerHTML = "";
             currentSubsidiaries.forEach(sub => {
                 let tierBadge = "";
-                if (sub.Nitaqat_Tier === "Platinum") tierBadge = "bg-sky-100 text-sky-800 border border-sky-200";
-                else if (sub.Nitaqat_Tier === "Green") tierBadge = "bg-emerald-100 text-emerald-800 border border-emerald-200";
-                else if (sub.Nitaqat_Tier === "Yellow") tierBadge = "bg-amber-100 text-amber-800 border border-amber-200";
-                else tierBadge = "bg-rose-100 text-rose-800 border border-rose-200";
+                if (sub.Nitaqat_Tier === "Platinum") tierBadge = "bg-slate-100 text-slate-800 border border-slate-200/80";
+                else if (sub.Nitaqat_Tier === "Green") tierBadge = "bg-emerald-50 text-emerald-700 border border-emerald-100";
+                else if (sub.Nitaqat_Tier === "Yellow") tierBadge = "bg-amber-50 text-amber-700 border border-amber-100";
+                else tierBadge = "bg-rose-50 text-rose-700 border border-rose-100";
 
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition-colors";
+                tr.className = "hover:bg-slate-50/80 transition-colors";
                 tr.innerHTML = `
-                    <td class="p-4 font-mono font-semibold text-slate-900">${sub.Sub_ID}</td>
-                    <td class="p-4 font-bold text-slate-800">${sub.Entity_Name}</td>
+                    <td class="p-4 pl-6 font-mono font-semibold text-slate-900">${sub.Sub_ID}</td>
+                    <td class="p-4 font-semibold text-slate-800">${sub.Entity_Name}</td>
                     <td class="p-4 font-mono text-slate-500">${sub.Unified_Number || 'N/A'}</td>
                     <td class="p-4 text-slate-500">${sub.ISIC4_Code || 'N/A'}</td>
                     <td class="p-4">
-                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${tierBadge}">${sub.Nitaqat_Tier}</span>
+                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase ${tierBadge}">${sub.Nitaqat_Tier}</span>
                     </td>
-                    <td class="p-4 text-right font-bold text-slate-900">${sub.Saudization_Rate ? sub.Saudization_Rate + '%' : 'N/A'}</td>
+                    <td class="p-4 pr-6 text-right font-semibold text-slate-900">${sub.Saudization_Rate ? sub.Saudization_Rate + '%' : 'N/A'}</td>
                 `;
                 subsTable.appendChild(tr);
             });
 
-            // Render unrestricted employee records
             const empTable = document.getElementById('table-hq-employees');
             empTable.innerHTML = "";
             currentEmployees.forEach(emp => {
                 const total = parseFloat(emp.Basic_Salary || 0) + parseFloat(emp.Housing_Allow || 0) + parseFloat(emp.Transport_Allow || 0);
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition-colors";
+                tr.className = "hover:bg-slate-50/80 transition-colors";
                 tr.innerHTML = `
-                    <td class="p-4 font-mono font-bold text-indigo-600">${emp.Emp_ID}</td>
-                    <td class="p-4 font-bold text-slate-500">${emp.Sub_ID}</td>
+                    <td class="p-4 pl-6 font-mono font-semibold text-indigo-600">${emp.Emp_ID}</td>
+                    <td class="p-4 font-mono text-slate-500 text-[11px]">${emp.Sub_ID}</td>
                     <td class="p-4 font-semibold text-slate-800">${emp.Full_Name}</td>
                     <td class="p-4 font-mono text-slate-500">${emp.Iqama_National_ID}</td>
                     <td class="p-4 text-slate-600">${emp.Job_Title_Qiwa}</td>
                     <td class="p-4 text-right font-mono text-slate-500">SAR ${parseFloat(emp.Basic_Salary || 0).toLocaleString()}</td>
                     <td class="p-4 text-right font-mono text-slate-500">SAR ${parseFloat((emp.Housing_Allow || 0) + (emp.Transport_Allow || 0)).toLocaleString()}</td>
-                    <td class="p-4 text-right font-mono font-bold text-emerald-600">SAR ${total.toLocaleString()}</td>
+                    <td class="p-4 pr-6 text-right font-mono font-semibold text-emerald-600">SAR ${total.toLocaleString()}</td>
                 `;
                 empTable.appendChild(tr);
             });
@@ -775,14 +757,12 @@
             const headcount = currentEmployees.length;
             document.getElementById('dir-kpi-count').textContent = `${headcount} Staff`;
 
-            // Build dynamic dropdown lists for selectors
             const otSelect = document.getElementById('form-ot-emp');
             const incSelect = document.getElementById('form-inc-emp');
             
             otSelect.innerHTML = "";
             incSelect.innerHTML = "";
 
-            // Populate forms and restricted table lists
             const empTable = document.getElementById('table-dir-employees');
             empTable.innerHTML = "";
 
@@ -798,23 +778,22 @@
                 incSelect.appendChild(opt2);
 
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition-colors";
+                tr.className = "hover:bg-slate-50/80 transition-colors";
                 tr.innerHTML = `
-                    <td class="p-4 font-mono font-bold text-slate-900">${emp.Emp_ID}</td>
-                    <td class="p-4 font-bold text-slate-500">${emp.Sub_ID}</td>
+                    <td class="p-4 pl-6 font-mono font-semibold text-slate-900">${emp.Emp_ID}</td>
+                    <td class="p-4 font-mono text-slate-400 text-[11px]">${emp.Sub_ID}</td>
                     <td class="p-4 font-semibold text-slate-800">${emp.Full_Name}</td>
                     <td class="p-4 font-mono text-slate-400">${emp.Iqama_National_ID}</td>
                     <td class="p-4 text-slate-600">${emp.Job_Title_Qiwa}</td>
-                    <td class="p-4 text-right font-mono text-rose-500 font-bold select-none">[RESTRICTED]</td>
-                    <td class="p-4 text-right font-mono text-rose-500 font-bold select-none">[RESTRICTED]</td>
-                    <td class="p-4 text-right font-mono text-rose-500 font-bold select-none">[RESTRICTED]</td>
+                    <td class="p-4 text-right font-mono text-rose-400 font-semibold select-none bg-rose-50/10">[RESTRICTED]</td>
+                    <td class="p-4 text-right font-mono text-rose-400 font-semibold select-none bg-rose-50/10">[RESTRICTED]</td>
+                    <td class="p-4 pr-6 text-right font-mono text-rose-400 font-semibold select-none bg-rose-50/10">[RESTRICTED]</td>
                 `;
                 empTable.appendChild(tr);
             });
         }
 
         function triggerWpsCsvDownload() {
-            // Re-fetch clean data arrays to formulate raw CSV rows
             let csv = "Record_Type,National_ID,Bank_Code,Account_Number,Basic_Wage,Housing_Allowance,Other_Allowance,Deduction,Total_Wage\n";
             currentEmployees.forEach(emp => {
                 const basic = parseFloat(emp.Basic_Salary || 0);
@@ -822,7 +801,6 @@
                 const transport = parseFloat(emp.Transport_Allow || 0);
                 const total = basic + housing + transport;
                 
-                // Mudad mapping rules: Use fallback standard bank parameters for sandbox
                 csv += `WPSD,${emp.Iqama_National_ID},050,SA000000000000000000000,${basic.toFixed(2)},${housing.toFixed(2)},${transport.toFixed(2)},0.00,${total.toFixed(2)}\n`;
             });
 
@@ -904,16 +882,15 @@
                     pushToast("Secure API link rejected payload. Check Apps Script endpoint configurations.", "error");
                 }
             } else {
-                pushToast(`[Sandbox Action]: Logged ${hours} hours overtime for ${empId}. This has been securely cached in the staging area for HQ HR approval.`);
+                pushToast(`[Sandbox Action]: Logged ${hours} hours overtime for ${empId}. Secured in staging area.`);
             }
         }
 
-        /* Disciplinary Event Incident Submission Rules */
         function submitIncidentReport() {
             const empId = document.getElementById('form-inc-emp').value;
             const infraction = document.getElementById('form-inc-type').value;
 
-            pushToast(`[Disciplinary Notice Processed]: Recorded '${infraction}' violation for ${empId}. Warning PDF has been formatted under KSA Article 80 standards to establish legal firing pathways.`, "warning");
+            pushToast(`[Disciplinary Notice]: Recorded '${infraction}' violation for ${empId}. Warning notice formatted under KSA Article 80 standards.`, "warning");
         }
     </script>
 </body>
