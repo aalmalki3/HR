@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Architecture & Request Gate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800 antialiased min-h-screen">
+
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 text-white p-2 rounded-lg font-bold text-xl tracking-wider">HR</div>
+                <h1 class="text-xl font-bold text-gray-900 tracking-tight">Request Gate</h1>
+            </div>
+            <span class="text-sm bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-medium border border-blue-200">Internal Use Only</span>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-10">
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+            
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-6 text-white">
+                <h2 class="text-2xl font-bold">Submit Architecture Request</h2>
+                <p class="text-blue-100 text-sm mt-1">Request structural changes, JD updates, competency revisions, or workflow modifications.</p>
+            </div>
+
+            <form id="requestForm" class="p-8 space-y-8">
+                
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">1</span>
+                        Requester Information
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Your Professional Email</label>
+                            <input type="email" id="requesterEmail" required placeholder="name@company.com" 
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Target Department</label>
+                            <select id="targetDept" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none bg-white">
+                                <option value="">Select Department...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100">
+
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">2</span>
+                        What would you like to modify?
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="requestTypeGrid">
+                        <label class="border-2 border-gray-200 rounded-xl p-4 flex flex-col justify-between cursor-pointer hover:border-blue-500 transition-all bg-white relative">
+                            <input type="radio" name="requestType" value="Org Structure" class="absolute top-4 right-4 h-4 w-4 text-blue-600" required>
+                            <div>
+                                <span class="block font-bold text-gray-900">1. Organizational Structure</span>
+                                <span class="block text-xs text-gray-500 mt-1">Change reporting lines, create units, or adjust department hierarchy.</span>
+                            </div>
+                        </label>
+                        <label class="border-2 border-gray-200 rounded-xl p-4 flex flex-col justify-between cursor-pointer hover:border-blue-500 transition-all bg-white relative">
+                            <input type="radio" name="requestType" value="JD & Competencies" class="absolute top-4 right-4 h-4 w-4 text-blue-600">
+                            <div>
+                                <span class="block font-bold text-gray-900">2. JDs & Competencies</span>
+                                <span class="block text-xs text-gray-500 mt-1">Modify core tasks, skills, or build an entirely new job profile.</span>
+                            </div>
+                        </label>
+                        <label class="border-2 border-gray-200 rounded-xl p-4 flex flex-col justify-between cursor-pointer hover:border-blue-500 transition-all bg-white relative">
+                            <input type="radio" name="requestType" value="KPI & OKRs" class="absolute top-4 right-4 h-4 w-4 text-blue-600">
+                            <div>
+                                <span class="block font-bold text-gray-900">3. KPI / OKR Assessment</span>
+                                <span class="block text-xs text-gray-500 mt-1">Link new performance indicators directly to existing job titles.</span>
+                            </div>
+                        </label>
+                        <label class="border-2 border-gray-200 rounded-xl p-4 flex flex-col justify-between cursor-pointer hover:border-blue-500 transition-all bg-white relative">
+                            <input type="radio" name="requestType" value="Workflow Flow" class="absolute top-4 right-4 h-4 w-4 text-blue-600">
+                            <div>
+                                <span class="block font-bold text-gray-900">4. Workflow & Doc Flow</span>
+                                <span class="block text-xs text-gray-500 mt-1">Propose sequence alterations or documentation routes.</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="dynamicFormSection" class="hidden bg-gray-50 rounded-xl p-6 border border-gray-200 space-y-6">
+                    <h3 id="dynamicTitle" class="text-md font-bold text-gray-800 border-b border-gray-200 pb-2">Request Context Details</h3>
+                    
+                    <div id="jobSelectionContainer" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Select Target Job Title</label>
+                            <select id="targetTitle" class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none">
+                                <option value="">Select a Title...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="dynamicFieldsArea" class="space-y-4"></div>
+                </div>
+
+                <div class="pt-4 flex justify-end">
+                    <button type="submit" id="submitBtn" class="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                        Submit Request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // REPLACE WITH YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
+        const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbyTFJJNj4T81EDPKlVox4Na_KYCRWh7ZIlYOTs-87YWckdZVY-gnmMQdcCfM8TFzAU/exec";
+        
+        let masterArchitectureData = [];
+
+        // UI Element Selectors
+        const form = document.getElementById('requestForm');
+        const deptSelect = document.getElementById('targetDept');
+        const titleSelect = document.getElementById('targetTitle');
+        const dynamicSection = document.getElementById('dynamicFormSection');
+        const dynamicTitle = document.getElementById('dynamicTitle');
+        const jobSelectionContainer = document.getElementById('jobSelectionContainer');
+        const dynamicFieldsArea = document.getElementById('dynamicFieldsArea');
+
+        // Fetch initialization data from Google Sheets via Apps Script on Load
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch(BACKEND_API_URL);
+                masterArchitectureData = await response.json();
+                
+                // Extract unique departments and populate dropdown
+                const departments = [...new Set(masterArchitectureData.map(item => item.Department))];
+                departments.forEach(dept => {
+                    const opt = document.createElement('option');
+                    opt.value = dept;
+                    opt.textContent = dept;
+                    deptSelect.appendChild(opt);
+                });
+            } catch (err) {
+                console.error("Failed to load layout architecture configuration from backend", err);
+            }
+        });
+
+        // Step 1: Manage Cascading Job Titles based on Department choice
+        deptSelect.addEventListener('change', () => {
+            const selectedDept = deptSelect.value;
+            titleSelect.innerHTML = '<option value="">Select a Title...</option>';
+            
+            if (!selectedDept) return;
+
+            const filteredJobs = masterArchitectureData.filter(item => item.Department === selectedDept);
+            filteredJobs.forEach(job => {
+                const opt = document.createElement('option');
+                opt.value = job.Job_Title;
+                opt.textContent = job.Job_Title;
+                titleSelect.appendChild(opt);
+            });
+            
+            // Include an "Escape Hatch" for new positions
+            const escapeOpt = document.createElement('option');
+            escapeOpt.value = "NEW_POSITION";
+            escapeOpt.textContent = "+ Request New Position Structure...";
+            titleSelect.appendChild(escapeOpt);
+        });
+
+        // Step 2: Handle Request Type mutations across the interface
+        document.querySelectorAll('input[name="requestType"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const val = e.target.value;
+                dynamicSection.classList.remove('hidden');
+                dynamicTitle.textContent = `Specific Details: ${val}`;
+                
+                // Reset conditional blocks
+                jobSelectionContainer.classList.add('hidden');
+                dynamicFieldsArea.innerHTML = '';
+
+                if (val === "Org Structure") {
+                    renderOrgStructureFields();
+                } else if (val === "JD & Competencies") {
+                    jobSelectionContainer.classList.remove('hidden');
+                    setupJobTitleObserver("JD");
+                } else if (val === "KPI & OKRs") {
+                    jobSelectionContainer.classList.remove('hidden');
+                    setupJobTitleObserver("KPI");
+                } else if (val === "Workflow Flow") {
+                    renderWorkflowFields();
+                }
+            });
+        });
+
+        function setupJobTitleObserver(mode) {
+            titleSelect.onchange = () => {
+                const selectedTitle = titleSelect.value;
+                dynamicFieldsArea.innerHTML = '';
+                if (!selectedTitle) return;
+
+                if (selectedTitle === "NEW_POSITION") {
+                    dynamicFieldsArea.innerHTML = `
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Proposed Job Title Name</label>
+                            <input type="text" id="newJobTitleName" required class="w-full px-4 py-2 border rounded-xl outline-none" placeholder="e.g., Senior Data Analyst">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Describe Core Target Accountabilities & Skills Required</label>
+                            <textarea id="newJobDetails" required rows="4" class="w-full px-4 py-2 border rounded-xl outline-none" placeholder="List responsibilities and skills required here..."></textarea>
+                        </div>`;
+                    return;
+                }
+
+                // Load existing configurations to support clean UX modifications
+                const record = masterArchitectureData.find(item => item.Job_Title === selectedTitle && item.Department === deptSelect.value);
+                if (!record) return;
+
+                if (mode === "JD") {
+                    dynamicFieldsArea.innerHTML = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-white p-4 rounded-xl border">
+                                <span class="block text-xs font-bold text-blue-600 tracking-wider uppercase mb-2">Current System Records</span>
+                                <p class="text-xs text-gray-500 font-semibold">Responsibilities:</p>
+                                <ul class="list-disc pl-4 text-xs text-gray-700 mb-2">${record.Key_Responsibilities.map(r => `<li>${r}</li>`).join('')}</ul>
+                                <p class="text-xs text-gray-500 font-semibold">Competencies:</p>
+                                <ul class="list-disc pl-4 text-xs text-gray-700">${record.Core_Competencies.map(c => `<li>${c}</li>`).join('')}</ul>
+                            </div>
+                            <div class="space-y-3">
+                                <label class="block text-xs font-bold text-gray-600 uppercase">Requested Adjustments / Modifications</label>
+                                <textarea id="jdModificationsText" required rows="5" class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl outline-none bg-white" placeholder="Specify precisely what lines should be appended, deleted, or altered..."></textarea>
+                            </div>
+                        </div>`;
+                } else if (mode === "KPI") {
+                    dynamicFieldsArea.innerHTML = `
+                        <div class="space-y-4">
+                            <div class="bg-white p-4 rounded-xl border">
+                                <span class="block text-xs font-bold text-indigo-600 tracking-wider uppercase mb-1">Active Tracked Metrics</span>
+                                <ul class="list-disc pl-4 text-xs text-gray-700">${record.Linked_KPIs.map(k => `<li>${k}</li>`).join('')}</ul>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 uppercase mb-2">Proposed Performance Metrics Addition / Modification</label>
+                                <textarea id="kpiModificationsText" required rows="4" class="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl outline-none bg-white" placeholder="Describe the new metrics, thresholds, and target frequencies..."></textarea>
+                            </div>
+                        </div>`;
+                }
+            };
+        }
+
+        function renderOrgStructureFields() {
+            dynamicFieldsArea.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">Nature of Structural Change</label>
+                        <select id="orgChangeNature" required class="w-full px-4 py-2 border rounded-xl bg-white outline-none">
+                            <option value="Unit Relocation">Relocate Existing Unit/Team</option>
+                            <option value="New Unit Creation">Create Entirely New Functional Unit</option>
+                            <option value="Reporting Line Amendment">Reporting Line Matrix Adjustment</option>
+                        </select>
+                    </div>
