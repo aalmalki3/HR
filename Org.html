@@ -112,7 +112,7 @@
     </main>
 
     <script>
-        // REPLACE WITH YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
+        // Your live API URL
         const BACKEND_API_URL = "https://script.google.com/macros/s/AKfycbwdbE0lFuqwQZsmTsD1i5V2oZ8isxPJ_0PqejBShWDRUOLFnCIbPHieGAdYHTGQS5A/exec";
         
         let masterArchitectureData = [];
@@ -129,7 +129,9 @@
         // Fetch initialization data from Google Sheets via Apps Script on Load
         window.addEventListener('DOMContentLoaded', async () => {
             try {
-                const response = await fetch(BACKEND_API_URL);
+                // FIXED: Cache Buster added directly to the URL string to force Google/Browser to pull fresh data
+                const response = await fetch(`${BACKEND_API_URL}?_=${new Date().getTime()}`);
+                
                 masterArchitectureData = await response.json();
                 
                 // Extract unique departments and populate dropdown
@@ -221,9 +223,9 @@
                             <div class="bg-white p-4 rounded-xl border">
                                 <span class="block text-xs font-bold text-blue-600 tracking-wider uppercase mb-2">Current System Records</span>
                                 <p class="text-xs text-gray-500 font-semibold">Responsibilities:</p>
-                                <ul class="list-disc pl-4 text-xs text-gray-700 mb-2">${record.Key_Responsibilities.map(r => `<li>${r}</li>`).join('')}</ul>
+                                <ul class="list-disc pl-4 text-xs text-gray-700 mb-2">${(record.Key_Responsibilities || []).map(r => `<li>${r}</li>`).join('')}</ul>
                                 <p class="text-xs text-gray-500 font-semibold">Competencies:</p>
-                                <ul class="list-disc pl-4 text-xs text-gray-700">${record.Core_Competencies.map(c => `<li>${c}</li>`).join('')}</ul>
+                                <ul class="list-disc pl-4 text-xs text-gray-700">${(record.Core_Competencies || []).map(c => `<li>${c}</li>`).join('')}</ul>
                             </div>
                             <div class="space-y-3">
                                 <label class="block text-xs font-bold text-gray-600 uppercase">Requested Adjustments / Modifications</label>
@@ -235,7 +237,7 @@
                         <div class="space-y-4">
                             <div class="bg-white p-4 rounded-xl border">
                                 <span class="block text-xs font-bold text-indigo-600 tracking-wider uppercase mb-1">Active Tracked Metrics</span>
-                                <ul class="list-disc pl-4 text-xs text-gray-700">${record.Linked_KPIs.map(k => `<li>${k}</li>`).join('')}</ul>
+                                <ul class="list-disc pl-4 text-xs text-gray-700">${(record.Linked_KPIs || []).map(k => `<li>${k}</li>`).join('')}</ul>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-600 uppercase mb-2">Proposed Performance Metrics Addition / Modification</label>
@@ -257,3 +259,95 @@
                             <option value="Reporting Line Amendment">Reporting Line Matrix Adjustment</option>
                         </select>
                     </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">Immediate Affected Roles / Positions</label>
+                        <input type="text" id="orgAffectedRoles" required class="w-full px-4 py-2 border rounded-xl outline-none" placeholder="e.g., Marketing Leads reporting to Operations">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-gray-600 mb-1">Justification & Functional Framework Details</label>
+                        <textarea id="orgExplanation" required rows="4" class="w-full px-4 py-2 border rounded-xl outline-none" placeholder="Describe the current structure vs proposed structure..."></textarea>
+                    </div>
+                </div>`;
+        }
+
+        function renderWorkflowFields() {
+            dynamicFieldsArea.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">Target Process / Document Flow Name</label>
+                        <input type="text" id="workflowProcessName" required class="w-full px-4 py-2 border rounded-xl outline-none" placeholder="e.g., Content Approval & Distribution Pipeline">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">Describe the Sequence of Actions & Responsible Roles</label>
+                        <textarea id="workflowSequence" required rows="5" class="w-full px-4 py-2 border rounded-xl outline-none" placeholder="Step 1: Specialist creates draft&#10;Step 2: Manager reviews and signs&#10;Step 3: Director grants final deployment clearance..."></textarea>
+                    </div>
+                </div>`;
+        }
+
+        // Step 3: Handle Payload Assembly and Delivery on Submit
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Processing & Saving...";
+
+            const requestType = document.querySelector('input[name="requestType"]:checked').value;
+            const detailsPayload = {};
+
+            // Collect variables dynamically based on selected request mode
+            if (requestType === "Org Structure") {
+                detailsPayload.nature = document.getElementById('orgChangeNature').value;
+                detailsPayload.affectedRoles = document.getElementById('orgAffectedRoles').value;
+                detailsPayload.explanation = document.getElementById('orgExplanation').value;
+            } else if (requestType === "JD & Competencies") {
+                detailsPayload.targetTitle = titleSelect.value;
+                if (titleSelect.value === "NEW_POSITION") {
+                    detailsPayload.proposedTitle = document.getElementById('newJobTitleName').value;
+                    detailsPayload.specifications = document.getElementById('newJobDetails').value;
+                } else {
+                    detailsPayload.modifications = document.getElementById('jdModificationsText').value;
+                }
+            } else if (requestType === "KPI & OKRs") {
+                detailsPayload.targetTitle = titleSelect.value;
+                if (titleSelect.value === "NEW_POSITION") {
+                    detailsPayload.proposedTitle = document.getElementById('newJobTitleName').value;
+                    detailsPayload.specifications = document.getElementById('newJobDetails').value;
+                } else {
+                    detailsPayload.modifications = document.getElementById('kpiModificationsText').value;
+                }
+            } else if (requestType === "Workflow Flow") {
+                detailsPayload.processName = document.getElementById('workflowProcessName').value;
+                detailsPayload.sequence = document.getElementById('workflowSequence').value;
+            }
+
+            const masterPayload = {
+                requesterEmail: document.getElementById('requesterEmail').value,
+                requestType: requestType,
+                targetDept: deptSelect.value,
+                details: detailsPayload
+            };
+
+            try {
+                const response = await fetch(BACKEND_API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Bypasses CORS browser preflight for clean execution
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(masterPayload)
+                });
+                
+                alert("Your HR architecture request has been successfully recorded!");
+                form.reset();
+                dynamicSection.classList.add('hidden');
+                
+            } catch (err) {
+                console.error("Submission error encountered", err);
+                alert("An issue occurred processing this transmission. Check log diagnostics.");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Submit Request";
+            }
+        });
+    </script>
+</body>
+</html>
