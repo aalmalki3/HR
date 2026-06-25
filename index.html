@@ -1,897 +1,336 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-50/50">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KSA Multi-Subsidiary Group HR Command</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        nitaqat: {
-                            platinum: '#0284c7', // Professional Blue
-                            green: '#059669',    // Safe Deep Emerald
-                            yellow: '#d97706',   // Warning Orange
-                            red: '#dc2626',      // Alert Red
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <style>
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 9999px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-        .glassmorphism {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-        .transition-panel {
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Org Design Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Prevent layout shift during load */
+    [x-cloak] { display: none !important; }
+    dialog::backdrop { background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px); }
+    .loader { border-top-color: #3b82f6; animation: spinner 1.5s linear infinite; }
+    @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
 </head>
-<body class="h-full flex flex-col overflow-hidden text-slate-800 antialiased font-sans">
+<body class="bg-gray-50 text-gray-900 font-sans antialiased">
 
-    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-md pointer-events-none"></div>
-
-    <header class="bg-slate-900 text-white shrink-0 shadow-sm relative z-20 px-6 py-4 flex items-center justify-between border-b border-slate-800">
-        <div class="flex items-center space-x-4">
-            <div class="bg-indigo-600/10 border border-indigo-500/30 p-2.5 rounded-xl flex items-center justify-center shadow-sm">
-                <span class="material-icons-round text-indigo-400">lan</span>
-            </div>
-            <div>
-                <h1 class="text-base font-bold tracking-tight text-slate-100">KSA Group HR Command Center</h1>
-                <p class="text-[10px] text-slate-400 font-mono tracking-wider mt-0.5">MHRSD • QIWA • MUDAD UNIFIED BLUEPRINT</p>
-            </div>
-        </div>
-
-        <div class="flex items-center space-x-3">
-            <div id="api-status-pill" onclick="openSettingsModal()" class="cursor-pointer flex items-center space-x-2 bg-amber-500/10 border border-amber-500/20 px-3.5 py-1.5 rounded-xl text-amber-400 text-xs font-medium hover:bg-amber-500/20 transition-all">
-                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                <span id="api-status-label">Sandbox Mode</span>
-            </div>
-
-            <button onclick="openSettingsModal()" class="p-2 hover:bg-slate-800 border border-transparent hover:border-slate-700/60 rounded-xl transition text-slate-400 hover:text-slate-200 flex items-center">
-                <span class="material-icons-round text-xl">settings</span>
-            </button>
-        </div>
+  <div id="app" class="min-h-screen flex flex-col">
+    <header class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center sticky top-0 z-10">
+      <div class="flex items-center gap-4">
+        <h1 class="text-xl font-semibold text-gray-800">Org Design Portal</h1>
+        <select id="dept-selector" class="hidden bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2">
+          </select>
+      </div>
+      <div id="user-profile" class="text-sm font-medium text-gray-600">Loading...</div>
     </header>
 
-    <div class="flex flex-1 overflow-hidden">
-        
-        <nav class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between shrink-0 border-r border-slate-800 select-none">
-            <div class="p-4 space-y-6">
-                <div>
-                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-2.5">Corporate Headquarters</p>
-                    <button onclick="switchRole('HR')" id="btn-role-hr" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all bg-indigo-600 text-white shadow-sm shadow-indigo-600/10">
-                        <span class="material-icons-round text-lg">verified_user</span>
-                        <span>Group HR Director</span>
-                    </button>
-                </div>
-                
-                <div class="pt-2">
-                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-2.5">Subsidiary Portals</p>
-                    <div class="space-y-1">
-                        <button onclick="switchRole('DIR_SUB03')" id="btn-role-sub3" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all text-slate-400 hover:bg-slate-800 hover:text-slate-200">
-                            <span class="flex items-center space-x-3">
-                                <span class="material-icons-round text-slate-500 text-base">corporate_fare</span>
-                                <span>Sub 3: IT Engineering</span>
-                            </span>
-                            <span class="text-[9px] bg-slate-800 border border-slate-700 px-1.5 py-0.5 rounded text-indigo-400 font-mono">DIR</span>
-                        </button>
-                        <button onclick="switchRole('DIR_SUB02')" id="btn-role-sub2" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all text-slate-400 hover:bg-slate-800 hover:text-slate-200">
-                            <span class="flex items-center space-x-3">
-                                <span class="material-icons-round text-slate-500 text-base">local_shipping</span>
-                                <span>Sub 2: Riyadh Logistics</span>
-                            </span>
-                            <span class="text-[9px] bg-slate-800 border border-slate-700 px-1.5 py-0.5 rounded text-indigo-400 font-mono">DIR</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
+    <main id="main-content" class="flex-1 p-6 max-w-7xl mx-auto w-full">
+      <div id="initial-loader" class="flex flex-col items-center justify-center h-64 gap-4">
+        <div class="loader ease-linear rounded-full border-4 border-gray-200 h-10 w-10"></div>
+        <p class="text-gray-500 font-medium">Authenticating & Loading Data...</p>
+      </div>
+      
+      <div id="dashboard" class="hidden space-y-8"></div>
+    </main>
+  </div>
 
-            <div class="p-4 border-t border-slate-800 bg-slate-950/40 text-[10px] text-slate-400 space-y-2">
-                <p class="font-bold text-slate-500 uppercase tracking-wider">Group Governance Rules</p>
-                <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>CIPD Life-cycle Compliance</div>
-                <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>WPS 48hr Max Script Caps</div>
-                <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Article 80 Disciplinary Trail</div>
-            </div>
-        </nav>
-
-        <main class="flex-1 overflow-y-auto p-8 custom-scrollbar bg-slate-50/50">
-
-            <div id="panel-hr" class="space-y-8 transition-panel">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-slate-200 pb-5 gap-4">
-                    <div>
-                        <h2 class="text-xl font-bold tracking-tight text-slate-900">Group HR Master Control Board</h2>
-                        <p class="text-xs text-slate-500 mt-1">Strategic oversight panel tracking all 5 active business entities, real-time Nitaqat color bands, and unified WPS GOSI balances.</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
-                        <div class="flex items-center justify-between text-slate-400">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Consolidated Roster</span>
-                            <span class="material-icons-round text-slate-400 text-lg">groups</span>
-                        </div>
-                        <div class="mt-4">
-                            <p class="text-2xl font-bold text-slate-900 tracking-tight" id="hq-kpi-count">--</p>
-                            <p class="text-[10px] text-slate-400 mt-1 font-mono">Active on Qiwa & GOSI</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
-                        <div class="flex items-center justify-between text-slate-400">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Monthly Payroll</span>
-                            <span class="material-icons-round text-slate-400 text-lg">payments</span>
-                        </div>
-                        <div class="mt-4">
-                            <p class="text-2xl font-bold text-slate-900 tracking-tight" id="hq-kpi-payroll">--</p>
-                            <p class="text-[10px] text-slate-400 mt-1 font-mono">WPS Auditable (SAR/mo)</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
-                        <div class="flex items-center justify-between text-slate-400">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Group Localization</span>
-                            <span class="material-icons-round text-slate-400 text-lg">how_to_reg</span>
-                        </div>
-                        <div class="mt-4">
-                            <p class="text-2xl font-bold text-indigo-600 tracking-tight" id="hq-kpi-saudization">--</p>
-                            <p class="text-[10px] text-slate-400 mt-1 font-mono">Consolidated National %</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-indigo-50/30 p-5 rounded-2xl border border-indigo-100 shadow-sm flex flex-col justify-between">
-                        <div class="flex items-center justify-between text-indigo-400">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-500">Action Alerts</span>
-                            <span class="material-icons-round text-indigo-500 text-lg">notification_important</span>
-                        </div>
-                        <div class="mt-4">
-                            <p class="text-2xl font-bold text-indigo-900 tracking-tight" id="hq-kpi-alerts">--</p>
-                            <p class="text-[10px] text-indigo-600 mt-1 font-mono">Expiring Iqamas &lt; 60 Days</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="border-b border-slate-200">
-                    <nav class="flex space-x-6 -mb-px">
-                        <button onclick="switchHrTab('subs')" id="btn-hr-tab-subs" class="border-b-2 border-indigo-600 pb-3 text-xs font-semibold text-indigo-600 tracking-wide">
-                            Subsidiary Nitaqat Health
-                        </button>
-                        <button onclick="switchHrTab('employees')" id="btn-hr-tab-employees" class="border-b-2 border-transparent pb-3 text-xs font-medium text-slate-500 hover:text-slate-800 tracking-wide transition">
-                            Full Master Employee Registry
-                        </button>
-                        <button onclick="switchHrTab('compliance')" id="btn-hr-tab-compliance" class="border-b-2 border-transparent pb-3 text-xs font-medium text-slate-500 hover:text-slate-800 tracking-wide transition">
-                            Nitaqat Simulator & Visa Block Rules
-                        </button>
-                    </nav>
-                </div>
-
-                <div id="hr-tab-subs" class="space-y-6 transition-panel">
-                    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse">
-                                <thead>
-                                    <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold uppercase text-slate-500 tracking-wider">
-                                        <th class="p-4 pl-6">Entity ID</th>
-                                        <th class="p-4">Subsidiary Legal Name</th>
-                                        <th class="p-4">Unified 700 ID</th>
-                                        <th class="p-4">Economic Activity (ISIC4)</th>
-                                        <th class="p-4">Nitaqat Band</th>
-                                        <th class="p-4 pr-6 text-right">Localization Rate</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table-hq-subs" class="divide-y divide-slate-100 text-xs">
-                                    </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="hr-tab-employees" class="space-y-6 hidden transition-panel">
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Consolidated Corporate Roster</h3>
-                        <button onclick="triggerWpsCsvDownload()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-sm shadow-indigo-600/5">
-                            <span class="material-icons-round text-base">download_for_offline</span>
-                            <span>Generate Mudad WPS CSV File</span>
-                        </button>
-                    </div>
-
-                    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse">
-                                <thead>
-                                    <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold uppercase text-slate-500 tracking-wider">
-                                        <th class="p-4 pl-6">Emp ID</th>
-                                        <th class="p-4">Entity</th>
-                                        <th class="p-4">Full Name</th>
-                                        <th class="p-4">Iqama / Nat ID</th>
-                                        <th class="p-4">Profession (Qiwa)</th>
-                                        <th class="p-4 text-right">Basic Wage</th>
-                                        <th class="p-4 text-right">Allowances</th>
-                                        <th class="p-4 pr-6 text-right font-bold">Total Wage (WPS)</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table-hq-employees" class="divide-y divide-slate-100 text-xs">
-                                    </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="hr-tab-compliance" class="space-y-6 hidden transition-panel">
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4 h-fit">
-                            <div>
-                                <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Predictive Hire Simulator</h3>
-                                <p class="text-xs text-slate-500 mt-1">Predict Nitaqat color shifts immediately *before* purchasing a visa slot on Qiwa to prevent pipeline lockouts.</p>
-                            </div>
-
-                            <div class="space-y-4 pt-2">
-                                <div>
-                                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Target Subsidiary</label>
-                                    <select id="sim-input-sub" class="w-full bg-slate-50/50 border border-slate-200 p-2.5 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition">
-                                        <option value="SUB_03">Future IT Consultations</option>
-                                        <option value="SUB_04">Arabian Gulf Engineering</option>
-                                    </select>
-                                </div>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Add Saudi Hires</label>
-                                        <input type="number" id="sim-input-saudis" min="0" value="0" class="w-full bg-slate-50/50 border border-slate-200 p-2.5 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Add Expats Hires</label>
-                                        <input type="number" id="sim-input-expats" min="0" value="0" class="w-full bg-slate-50/50 border border-slate-200 p-2.5 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition">
-                                    </div>
-                                </div>
-                                <button onclick="calculateSimulatorCompliance()" class="w-full bg-slate-950 hover:bg-slate-800 text-white p-3 rounded-xl text-xs font-semibold transition shadow-sm mt-2">
-                                    Run Predictor Model
-                                </button>
-                            </div>
-                        </div>
-
-                        <div id="sim-result-card" class="lg:col-span-2 bg-slate-900 text-white p-6 rounded-2xl border border-slate-800 shadow-md flex flex-col justify-between hidden transition-panel">
-                            <div class="space-y-4">
-                                <div class="flex items-center space-x-2 text-indigo-400">
-                                    <span class="material-icons-round text-base">analytics</span>
-                                    <span class="text-[10px] font-bold uppercase tracking-widest">Nitaqat Simulator Feedback</span>
-                                </div>
-                                <h4 class="text-base font-bold text-slate-100" id="sim-result-title">Simulation Output Ready</h4>
-                                <div class="p-4 bg-slate-950/50 border border-slate-800/60 rounded-xl space-y-2.5 text-xs font-mono text-slate-300">
-                                    <div class="flex justify-between"><span>Active Headcount:</span><span id="sim-res-headcount" class="text-white font-bold">--</span></div>
-                                    <div class="flex justify-between"><span>New Saudization rate:</span><span id="sim-res-saudi" class="text-white font-bold">--</span></div>
-                                    <div class="flex justify-between"><span>Projected Nitaqat Tier:</span><span id="sim-res-tier" class="text-indigo-400 font-bold">--</span></div>
-                                </div>
-                            </div>
-                            <div class="bg-slate-950/40 border border-slate-800 p-4 rounded-xl text-xs text-slate-300 mt-6 flex items-start gap-3">
-                                <span class="material-icons-round text-indigo-400 text-sm mt-0.5">info_outline</span>
-                                <span id="sim-res-advice" class="leading-relaxed">No feedback calculated yet.</span>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            <div id="panel-director" class="space-y-8 hidden transition-panel">
-                <div class="border-b border-slate-200 pb-5">
-                    <h2 class="text-xl font-bold tracking-tight text-slate-900" id="dir-panel-title">Subsidiary Director Workspace</h2>
-                    <p class="text-xs text-slate-500 mt-1">Operational view containing strict database sandboxes: sensitive salaries are censored, and Iqama numbers are masked.</p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-                        <div class="flex items-center justify-between text-slate-400">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Active Local Team</span>
-                            <span class="material-icons-round text-slate-400 text-lg">person</span>
-                        </div>
-                        <p class="text-2xl font-bold text-slate-900 mt-4 tracking-tight" id="dir-kpi-count">--</p>
-                        <p class="text-[10px] text-slate-400 mt-1">Direct Reports assigned to your node</p>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm border-l-rose-500 border-l-2">
-                        <div class="flex items-center justify-between text-slate-400">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-rose-500">Sensitive Wage Access</span>
-                            <span class="material-icons-round text-rose-400 text-lg">visibility_off</span>
-                        </div>
-                        <p class="text-lg font-bold text-rose-600 mt-4 tracking-wide uppercase">Restricted Panel</p>
-                        <p class="text-[10px] text-slate-400 mt-1">All financial matrices dropped at API level</p>
-                    </div>
-
-                    <div class="bg-emerald-50/20 p-5 rounded-2xl border border-emerald-100">
-                        <div class="flex items-center justify-between text-emerald-600">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Compliance Band</span>
-                            <span class="material-icons-round text-emerald-500 text-lg">gavel</span>
-                        </div>
-                        <p class="text-2xl font-bold text-emerald-600 mt-4 tracking-tight">Green Band</p>
-                        <p class="text-[10px] text-emerald-500 mt-1">Active visa pathways operational</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
-                        <div class="flex items-center space-x-2.5 text-indigo-600">
-                            <span class="material-icons-round text-base">alarm_add</span>
-                            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Log Blind Overtime Hours</h3>
-                        </div>
-                        <p class="text-xs text-slate-500 leading-relaxed">Record overtime hours for compensation. The API dynamically calculates 150% payments behind the scenes based on secret basic wage parameters.</p>
-
-                        <div class="space-y-4 pt-2">
-                            <div>
-                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Select Team Member</label>
-                                <select id="form-ot-emp" class="w-full bg-slate-50/50 border border-slate-200 p-2.5 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition">
-                                    </select>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Actual Overtime Hours (Weekly Max Limit: 8 hours)</label>
-                                <input type="number" id="form-ot-hours" min="1" max="10" value="2" class="w-full bg-slate-50/50 border border-slate-200 p-2.5 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition">
-                            </div>
-                            <button onclick="submitOvertimeLogs()" class="w-full bg-slate-950 hover:bg-slate-800 text-white p-3 rounded-xl text-xs font-semibold transition shadow-sm mt-2">
-                                Submit Overtime Record to HQ
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
-                        <div class="flex items-center space-x-2.5 text-indigo-600">
-                            <span class="material-icons-round text-base">report</span>
-                            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Legal Disciplinary Logger (Article 80 Trail)</h3>
-                        </div>
-                        <p class="text-xs text-slate-500 leading-relaxed">Formally record workspace policy infractions to build the legally mandated paper warning structure required by KSA labor courts.</p>
-
-                        <div class="space-y-4 pt-2">
-                            <div>
-                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Select Employee</label>
-                                <select id="form-inc-emp" class="w-full bg-slate-50/50 border border-slate-200 p-2.5 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition">
-                                    </select>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Infraction Category</label>
-                                <select id="form-inc-type" class="w-full bg-slate-50/50 border border-slate-200 p-2.5 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition">
-                                    <option value="Unexcused Absence">Unexcused Absence (Automatic deduction request)</option>
-                                    <option value="Safety Protocol Breach">Safety/Security violation under Article 80</option>
-                                    <option value="Operational Insubordination">Disregarding official workflows & directives</option>
-                                </select>
-                            </div>
-                            <button onclick="submitIncidentReport()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-xl text-xs font-semibold transition shadow-sm mt-2">
-                                Issue Official Legal Warning notice
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-                    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <h3 class="text-xs font-bold uppercase text-slate-900 tracking-wider">My Operational Team</h3>
-                        <span class="bg-emerald-50 text-emerald-700 border border-emerald-100 px-3 py-1 rounded-xl text-[10px] font-semibold uppercase tracking-wider">
-                            Privacy Masking Filter Operational
-                        </span>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold uppercase text-slate-500 tracking-wider">
-                                    <th class="p-4 pl-6">Emp ID</th>
-                                    <th class="p-4">Entity</th>
-                                    <th class="p-4">Full Name</th>
-                                    <th class="p-4">Iqama / National ID</th>
-                                    <th class="p-4">Profession</th>
-                                    <th class="p-4 text-right">Basic Wage</th>
-                                    <th class="p-4 text-right">Allowances</th>
-                                    <th class="p-4 pr-6 text-right font-bold">Total Wage</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-dir-employees" class="divide-y divide-slate-100 text-xs">
-                                </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-        </main>
-    </div>
-
-    <div id="modal-settings" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm transition-opacity duration-300 pointer-events-none opacity-0">
-        <div class="bg-white max-w-lg w-full mx-4 rounded-2xl shadow-xl border border-slate-200/80 overflow-hidden transform scale-95 transition-transform duration-300">
-            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2 uppercase tracking-wider">
-                    <span class="material-icons-round text-indigo-600 text-lg">settings</span>
-                    <span>System Integration Gateway</span>
-                </h3>
-                <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold font-mono transition">×</button>
-            </div>
-            <div class="p-6 space-y-4">
-                <p class="text-xs text-slate-500 leading-relaxed">Deploy your Apps Script as a web app. Paste the Web App link below to sync with Google Sheets. Clear the input to return to local sandbox simulator mode.</p>
-                <div>
-                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Google Sheets API URL</label>
-                    <input type="text" id="setting-api-url" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs font-mono text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition">
-                </div>
-                <div class="bg-indigo-50/40 border border-indigo-100 p-4 rounded-xl text-[11px] text-indigo-800 space-y-1 leading-relaxed">
-                    <p class="font-bold">Need a live connection?</p>
-                    <p class="text-indigo-900/80">Wipe the default code in Apps Script, copy code from `code.gs` in your repository workspace, deploy, and paste the endpoint above.</p>
-                </div>
-            </div>
-            <div class="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex justify-end space-x-2.5">
-                <button onclick="closeSettingsModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl transition">
-                    Close Panel
-                </button>
-                <button onclick="saveApiUrlSetting()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-sm shadow-indigo-600/10">
-                    Connect Gateway
-                </button>
-            </div>
+  <dialog id="form-modal" class="bg-white rounded-xl shadow-2xl p-0 w-full max-w-md m-auto">
+    <form id="mutation-form" method="dialog" class="p-6 flex flex-col gap-4">
+      <h2 id="modal-title" class="text-lg font-bold text-gray-900">Add Item</h2>
+      <div id="modal-fields" class="flex flex-col gap-4">
         </div>
-    </div>
+      <div class="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-100">
+        <button type="button" onclick="closeModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
+        <button type="submit" id="submit-btn" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center justify-center min-w-[100px] transition-colors">
+          <span id="submit-text">Save</span>
+          <div id="submit-spinner" class="loader ml-2 border-2 border-white/30 border-t-white h-4 w-4 hidden"></div>
+        </button>
+      </div>
+    </form>
+  </dialog>
 
-    <script>
-        const SANDBOX_SUBSIDIARIES = [
-            { Sub_ID: "SUB_01", Entity_Name: "Al-Talent Sourcing HQ", CR_Number: "1010492834", Unified_Number: "7001492043", ISIC4_Code: "7810 - Recruitment", Nitaqat_Tier: "Platinum", Saudization_Rate: 60 },
-            { Sub_ID: "SUB_02", Entity_Name: "Riyadh Logistics Services", CR_Number: "1010394829", Unified_Number: "7003928421", ISIC4_Code: "4923 - Road Freight", Nitaqat_Tier: "Green", Saudization_Rate: 25 },
-            { Sub_ID: "SUB_03", Entity_Name: "Future IT Consultations", CR_Number: "1010294812", Unified_Number: "7004928312", ISIC4_Code: "6202 - IT Consulting", Nitaqat_Tier: "Green", Saudization_Rate: 40 },
-            { Sub_ID: "SUB_04", Entity_Name: "Arabian Gulf Engineering", CR_Number: "1010582910", Unified_Number: "7002938102", ISIC4_Code: "7110 - Engineering", Nitaqat_Tier: "Yellow", Saudization_Rate: 15 },
-            { Sub_ID: "SUB_05", Entity_Name: "Najd Tourism Services", CR_Number: "1010629481", Unified_Number: "7005928102", ISIC4_Code: "7911 - Travel Agency", Nitaqat_Tier: "Red", Saudization_Rate: 5 }
-        ];
+  <div id="toast-container" class="fixed bottom-4 right-4 flex flex-col gap-2 z-50" aria-live="polite"></div>
 
-        const SANDBOX_EMPLOYEES = [
-            { Emp_ID: "EMP_001", Sub_ID: "SUB_01", Full_Name: "Noura Al-Otaibi", Nationality: "Saudi", Iqama_National_ID: "1092839481", Iqama_Expiry: "2028-12-15", Job_Title_Qiwa: "HR Specialist", Line_Manager_ID: "HQ_MGR", Basic_Salary: 12000, Housing_Allow: 3000, Transport_Allow: 1000 },
-            { Emp_ID: "EMP_002", Sub_ID: "SUB_01", Full_Name: "Yousef Al-Shammari", Nationality: "Saudi", Iqama_National_ID: "1029384910", Iqama_Expiry: "2027-05-10", Job_Title_Qiwa: "Recruiter Specialist", Line_Manager_ID: "HQ_MGR", Basic_Salary: 11000, Housing_Allow: 2750, Transport_Allow: 1000 },
-            { Emp_ID: "EMP_003", Sub_ID: "SUB_01", Full_Name: "Ahmed Al-Saeed", Nationality: "Egyptian", Iqama_National_ID: "2304928310", Iqama_Expiry: "2026-07-20", Job_Title_Qiwa: "Recruitment Agent", Line_Manager_ID: "HQ_MGR", Basic_Salary: 8000, Housing_Allow: 2000, Transport_Allow: 800 },
-            
-            { Emp_ID: "EMP_004", Sub_ID: "SUB_02", Full_Name: "Khaled Al-Dawsari", Nationality: "Saudi", Iqama_National_ID: "1049283102", Iqama_Expiry: "2029-01-18", Job_Title_Qiwa: "Logistics Admin", Line_Manager_ID: "DIR_SUB02", Basic_Salary: 10000, Housing_Allow: 2500, Transport_Allow: 1000 },
-            { Emp_ID: "EMP_005", Sub_ID: "SUB_02", Full_Name: "John Smith", Nationality: "Indian", Iqama_National_ID: "2492831029", Iqama_Expiry: "2026-08-01", Job_Title_Qiwa: "Dispatch Fleet Admin", Line_Manager_ID: "DIR_SUB02", Basic_Salary: 5500, Housing_Allow: 1500, Transport_Allow: 800 },
-            { Emp_ID: "EMP_006", Sub_ID: "SUB_02", Full_Name: "Siddharth Kumar", Nationality: "Indian", Iqama_National_ID: "2402948102", Iqama_Expiry: "2026-11-12", Job_Title_Qiwa: "Heavy Fleet Coordinator", Line_Manager_ID: "DIR_SUB02", Basic_Salary: 6000, Housing_Allow: 1500, Transport_Allow: 800 },
-            
-            { Emp_ID: "EMP_007", Sub_ID: "SUB_03", Full_Name: "Sara Al-Malki", Nationality: "Saudi", Iqama_National_ID: "1093849120", Iqama_Expiry: "2028-10-01", Job_Title_Qiwa: "Systems Analyst", Line_Manager_ID: "DIR_SUB03", Basic_Salary: 15000, Housing_Allow: 3750, Transport_Allow: 1000 },
-            { Emp_ID: "EMP_008", Sub_ID: "SUB_03", Full_Name: "Sanjay Patel", Nationality: "Indian", Iqama_National_ID: "2493029481", Iqama_Expiry: "2026-07-15", Job_Title_Qiwa: "Senior Developer", Line_Manager_ID: "DIR_SUB03", Basic_Salary: 18000, Housing_Allow: 4500, Transport_Allow: 1200 },
-            { Emp_ID: "EMP_009", Sub_ID: "SUB_03", Full_Name: "Ali Hassan", Nationality: "Pakistani", Iqama_National_ID: "2492049102", Iqama_Expiry: "2026-08-30", Job_Title_Qiwa: "Network Specialist", Line_Manager_ID: "DIR_SUB03", Basic_Salary: 11000, Housing_Allow: 2750, Transport_Allow: 800 },
-            
-            { Emp_ID: "EMP_010", Sub_ID: "SUB_04", Full_Name: "Bandar Al-Qahtani", Nationality: "Saudi", Iqama_National_ID: "1092831023", Iqama_Expiry: "2029-04-20", Job_Title_Qiwa: "Civil Engineer", Line_Manager_ID: "DIR_SUB04", Basic_Salary: 14000, Housing_Allow: 3500, Transport_Allow: 1000 },
-            { Emp_ID: "EMP_011", Sub_ID: "SUB_04", Full_Name: "Michael Chang", Nationality: "Filipino", Iqama_National_ID: "2592039102", Iqama_Expiry: "2026-09-12", Job_Title_Qiwa: "Estimator Specialist", Line_Manager_ID: "DIR_SUB04", Basic_Salary: 12000, Housing_Allow: 3000, Transport_Allow: 1000 },
-            
-            { Emp_ID: "EMP_012", Sub_ID: "SUB_05", Full_Name: "Fatima Al-Harbi", Nationality: "Saudi", Iqama_National_ID: "1092831032", Iqama_Expiry: "2028-11-22", Job_Title_Qiwa: "Agency Specialist", Line_Manager_ID: "DIR_SUB05", Basic_Salary: 11000, Housing_Allow: 2750, Transport_Allow: 1000 }
-        ];
+  <script>
+    /**
+     * ==========================================
+     * STATE & REST API UTILITIES
+     * ==========================================
+     */
+    const State = {
+      user: null,
+      activeDeptId: null,
+      data: { levels: [], titles: [], jds: [], kpis: [] },
+      modalAction: null,
+      modalContextId: null
+    };
 
-        /* System State Variables - Preconfigured with live Apps Script Endpoint */
-        let systemApiUrl = "https://script.google.com/macros/s/AKfycbzI_0rpDJNbP23Y59XgA8Sb1DOi9hyzz9fd7VK0j71gJXI2QvHjsYuxUJXK5m9PmI0/exec";
-        let currentRole = "HR"; // Active routing context: 'HR' or Subsidiary Manager ID (e.g., 'DIR_SUB03')
-        let currentEmployees = [];
-        let currentSubsidiaries = [];
+    // Your active Google Apps Script deployment URL
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxQscDgzYuqqJeEsLO6df3NlQ3JRaBdu0BfEMWKx5Oe511ExNmveehpfkO16HoRfeU/exec";
 
-        window.onload = function() {
-            const cachedUrl = localStorage.getItem("ksa_group_api_url");
-            if (cachedUrl) {
-                systemApiUrl = cachedUrl;
-            }
-            
-            if (systemApiUrl) {
-                document.getElementById('setting-api-url').value = systemApiUrl;
-                setApiStatus(true);
-            }
-            reloadSystemData();
-        };
+    // REST fetch wrapper to communicate with GAS from GitHub
+    const api = {
+      async request(action, payload = null) {
+        let url = GAS_URL;
+        let options = { method: 'GET' };
 
-        function pushToast(message, type = "success") {
-            const container = document.getElementById("toast-container");
-            const toast = document.createElement("div");
-            toast.className = `flex items-center gap-3.5 p-4 rounded-xl shadow-md border text-xs font-semibold transition-all duration-300 transform translate-x-12 opacity-0 pointer-events-auto bg-white`;
-            
-            let colorClasses = "border-emerald-100 text-emerald-800 bg-emerald-50/80 backdrop-blur-sm";
-            let icon = "check_circle";
-
-            if (type === "warning") {
-                colorClasses = "border-amber-100 text-amber-800 bg-amber-50/80 backdrop-blur-sm";
-                icon = "warning";
-            } else if (type === "error") {
-                colorClasses = "border-rose-100 text-rose-800 bg-rose-50/80 backdrop-blur-sm";
-                icon = "error";
-            }
-
-            toast.className += ` ${colorClasses}`;
-            
-            toast.innerHTML = `
-                <span class="material-icons-round text-base">${icon}</span>
-                <span class="flex-1 leading-normal">${message}</span>
-                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 font-bold text-base">&times;</button>
-            `;
-
-            container.appendChild(toast);
-
-            setTimeout(() => {
-                toast.classList.remove("translate-x-12", "opacity-0");
-            }, 50);
-
-            setTimeout(() => {
-                toast.classList.add("translate-x-12", "opacity-0");
-                setTimeout(() => toast.remove(), 300);
-            }, 6000);
+        if (payload) {
+          options.method = 'POST';
+          // CRITICAL: Send as text/plain to avoid CORS preflight failures in Apps Script
+          options.headers = { 'Content-Type': 'text/plain;charset=utf-8' };
+          options.body = JSON.stringify({ action, ...payload });
+        } else {
+          url = `${GAS_URL}?action=${action}`;
         }
 
-        function setApiStatus(connected) {
-            const pill = document.getElementById('api-status-pill');
-            const label = document.getElementById('api-status-label');
-            if (connected) {
-                pill.className = "cursor-pointer flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-1.5 rounded-xl text-emerald-500 text-xs font-medium hover:bg-emerald-500/20 transition-all";
-                label.textContent = "Live Sheet Sync Active";
-            } else {
-                pill.className = "cursor-pointer flex items-center space-x-2 bg-amber-500/10 border border-amber-500/20 px-3.5 py-1.5 rounded-xl text-amber-500 text-xs font-medium hover:bg-amber-500/20 transition-all";
-                label.textContent = "Sandbox Mode";
-            }
-        }
+        const response = await fetch(url, options);
+        const result = await response.json();
+        
+        if (result.error) throw new Error(result.error);
+        return result.data;
+      },
 
-        function openSettingsModal() {
-            const modal = document.getElementById('modal-settings');
-            modal.classList.remove('pointer-events-none', 'opacity-0');
-            modal.querySelector('div').classList.remove('scale-95');
-        }
+      getUserContext: () => api.request('getUserContext'),
+      
+      getDepartmentData: async (deptId) => {
+        const response = await fetch(`${GAS_URL}?action=getDepartmentData&deptId=${deptId}`);
+        const result = await response.json();
+        if (result.error) throw new Error(result.error);
+        return result.data;
+      },
 
-        function closeSettingsModal() {
-            const modal = document.getElementById('modal-settings');
-            modal.classList.add('pointer-events-none', 'opacity-0');
-            modal.querySelector('div').classList.add('scale-95');
-        }
+      addJobTitle: (deptId, levelId, titleName) => api.request('addJobTitle', { deptId, levelId, titleName }),
+      addJDPoint: (deptId, titleId, pointText) => api.request('addJDPoint', { deptId, titleId, pointText }),
+      addKPI: (deptId, jdPointId, metric, target) => api.request('addKPI', { deptId, jdPointId, metric, target })
+    };
 
-        function saveApiUrlSetting() {
-            const inputVal = document.getElementById('setting-api-url').value.trim();
-            if (inputVal) {
-                systemApiUrl = inputVal;
-                localStorage.setItem("ksa_group_api_url", inputVal);
-                setApiStatus(true);
-                pushToast("Secure connection endpoint updated! Querying database...");
-            } else {
-                systemApiUrl = "";
-                localStorage.removeItem("ksa_group_api_url");
-                setApiStatus(false);
-                pushToast("Switched back to simulated sandbox environment", "warning");
-            }
-            closeSettingsModal();
-            reloadSystemData();
-        }
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const colors = type === 'success' ? 'bg-green-50 text-green-800 border-green-200' : 'bg-red-50 text-red-800 border-red-200';
+      toast.className = `px-4 py-3 rounded-lg border shadow-sm transition-opacity duration-300 ${colors}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+    }
 
-        async function reloadSystemData() {
-            if (systemApiUrl) {
-                try {
-                    let roleParam = (currentRole === 'HR') ? 'HR' : 'Director';
-                    let queryUrl = `${systemApiUrl}?action=getEmployees&role=${roleParam}`;
-                    
-                    if (roleParam === 'Director') {
-                        queryUrl += `&directorId=${currentRole}`;
+    /**
+     * ==========================================
+     * INITIALIZATION & DATA FETCHING
+     * ==========================================
+     */
+    async function initApp() {
+      try {
+        const context = await api.getUserContext();
+        if (!context.isAuthorized) throw new Error("Unauthorized. You do not manage any departments.");
+        
+        State.user = context;
+        document.getElementById('user-profile').textContent = context.userEmail;
+        
+        const selector = document.getElementById('dept-selector');
+        context.departments.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.id;
+          opt.textContent = d.name;
+          selector.appendChild(opt);
+        });
+        
+        selector.classList.remove('hidden');
+        selector.addEventListener('change', (e) => loadDepartment(e.target.value));
+        
+        // Load first authorized department
+        await loadDepartment(context.departments[0].id);
+      } catch (error) {
+        document.getElementById('initial-loader').innerHTML = `<p class="text-red-600 font-semibold bg-red-50 p-4 rounded-lg">${error.message || error}</p>`;
+      }
+    }
+
+    async function loadDepartment(deptId) {
+      State.activeDeptId = deptId;
+      document.getElementById('dashboard').classList.add('hidden');
+      document.getElementById('initial-loader').classList.remove('hidden');
+      
+      try {
+        State.data = await api.getDepartmentData(deptId);
+        renderDashboard();
+      } catch (error) {
+        showToast(error.message, 'error');
+      } finally {
+        document.getElementById('initial-loader').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+      }
+    }
+
+    /**
+     * ==========================================
+     * RENDERING ENGINE
+     * ==========================================
+     */
+    function renderDashboard() {
+      const container = document.getElementById('dashboard');
+      const { levels, titles, jds, kpis } = State.data;
+
+      if (levels.length === 0) {
+        container.innerHTML = `<div class="p-8 text-center bg-white rounded-xl border border-gray-200 text-gray-500">No organizational levels found. Ensure levels exist in the database.</div>`;
+        return;
+      }
+
+      // Sort levels by rank
+      const sortedLevels = [...levels].sort((a, b) => (a.Rank || 0) - (b.Rank || 0));
+
+      container.innerHTML = sortedLevels.map(level => {
+        const levelTitles = titles.filter(t => t.LevelID === level.LevelID);
+        return `
+          <section class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-6">
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+              <h2 class="font-semibold text-gray-800 text-lg">${escapeHtml(level.LevelName)}</h2>
+              <button onclick="openModal('addTitle', '${level.LevelID}')" class="text-sm font-medium text-blue-600 hover:text-blue-800">+ Add Title</button>
+            </div>
+            <div class="p-6 space-y-6">
+              ${levelTitles.length === 0 ? `<p class="text-sm text-gray-400 italic">No roles defined at this level.</p>` : 
+                levelTitles.map(title => renderTitleNode(title, jds, kpis)).join('')}
+            </div>
+          </section>
+        `;
+      }).join('');
+    }
+
+    function renderTitleNode(title, allJDs, allKPIs) {
+      const titleJDs = allJDs.filter(jd => jd.TitleID === title.TitleID);
+      
+      return `
+        <div class="border border-blue-100 rounded-lg p-5 bg-blue-50/20">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-gray-900 text-md flex items-center gap-2">
+              <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+              ${escapeHtml(title.TitleName)}
+            </h3>
+            <button onclick="openModal('addJD', '${title.TitleID}')" class="text-xs font-medium text-gray-500 hover:text-blue-600 border border-gray-200 bg-white px-2 py-1 rounded shadow-sm">+ Add Responsibility</button>
+          </div>
+          
+          <ul class="space-y-3">
+            ${titleJDs.map(jd => {
+              const jdKPIs = allKPIs.filter(kpi => kpi.JDPointID === jd.JDPointID);
+              return `
+                <li class="ml-4 pl-4 border-l-2 border-gray-200">
+                  <div class="text-sm text-gray-700 mb-2">${escapeHtml(jd.PointText)}</div>
+                  <div class="bg-white p-3 rounded border border-gray-100 shadow-sm ml-2">
+                    <div class="flex justify-between items-center mb-2">
+                      <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Metrics & OKRs</span>
+                      <button onclick="openModal('addKPI', '${jd.JDPointID}')" class="text-xs font-medium text-blue-600 hover:underline">+ Add KPI</button>
+                    </div>
+                    ${jdKPIs.length === 0 ? `<span class="text-xs text-gray-400">No KPIs tracked.</span>` : 
+                      `<ul class="space-y-1">
+                        ${jdKPIs.map(kpi => `
+                          <li class="text-xs flex justify-between bg-gray-50 p-2 rounded">
+                            <span class="font-medium text-gray-700">${escapeHtml(kpi.Metric)}</span>
+                            <span class="text-gray-500 font-mono bg-white px-1 border border-gray-200 rounded">${escapeHtml(kpi.Target)}</span>
+                          </li>
+                        `).join('')}
+                      </ul>`
                     }
+                  </div>
+                </li>
+              `;
+            }).join('')}
+          </ul>
+        </div>
+      `;
+    }
 
-                    const response = await fetch(queryUrl);
-                    const responseJson = await response.json();
+    /**
+     * ==========================================
+     * FORM & MUTATION HANDLING
+     * ==========================================
+     */
+    function openModal(action, contextId) {
+      State.modalAction = action;
+      State.modalContextId = contextId;
+      
+      const title = document.getElementById('modal-title');
+      const fields = document.getElementById('modal-fields');
+      const form = document.getElementById('mutation-form');
+      
+      form.reset();
+      
+      if (action === 'addTitle') {
+        title.textContent = 'Add Job Title';
+        fields.innerHTML = `<input type="text" name="titleName" required placeholder="e.g. Senior Backend Engineer" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">`;
+      } else if (action === 'addJD') {
+        title.textContent = 'Add Job Responsibility';
+        fields.innerHTML = `<textarea name="pointText" required rows="3" placeholder="Describe the core responsibility..." class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"></textarea>`;
+      } else if (action === 'addKPI') {
+        title.textContent = 'Add KPI / OKR';
+        fields.innerHTML = `
+          <input type="text" name="metric" required placeholder="Metric (e.g. Server Uptime)" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
+          <input type="text" name="target" required placeholder="Target (e.g. 99.99%)" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
+        `;
+      }
+      
+      document.getElementById('form-modal').showModal();
+    }
 
-                    if (responseJson.status === "success") {
-                        currentEmployees = responseJson.data.employees;
-                        currentSubsidiaries = responseJson.data.subsidiaries;
-                        pushToast("Successfully synced database rows with Google Sheet");
-                    } else {
-                        pushToast(`Database rejection: ${responseJson.message}`, "error");
-                        fallbackToSandbox();
-                    }
-                } catch (err) {
-                    pushToast("Network error or CORS block from target Script. Reverting to sandbox simulation.", "error");
-                    fallbackToSandbox();
-                }
-            } else {
-                fallbackToSandbox();
-            }
+    function closeModal() {
+      document.getElementById('form-modal').close();
+    }
 
-            renderPortalView();
+    document.getElementById('mutation-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      
+      // UI Loading State
+      const btn = document.getElementById('submit-btn');
+      const text = document.getElementById('submit-text');
+      const spinner = document.getElementById('submit-spinner');
+      
+      btn.disabled = true;
+      text.textContent = 'Saving...';
+      spinner.classList.remove('hidden');
+
+      try {
+        const deptId = State.activeDeptId;
+        const ctxId = State.modalContextId;
+
+        if (State.modalAction === 'addTitle') {
+          const newId = await api.addJobTitle(deptId, ctxId, formData.get('titleName'));
+          State.data.titles.push({ TitleID: newId, DeptID: deptId, LevelID: ctxId, TitleName: formData.get('titleName') });
+        } 
+        else if (State.modalAction === 'addJD') {
+          const newId = await api.addJDPoint(deptId, ctxId, formData.get('pointText'));
+          State.data.jds.push({ JDPointID: newId, TitleID: ctxId, PointText: formData.get('pointText') });
+        } 
+        else if (State.modalAction === 'addKPI') {
+          const newId = await api.addKPI(deptId, ctxId, formData.get('metric'), formData.get('target'));
+          State.data.kpis.push({ KpiID: newId, JDPointID: ctxId, Metric: formData.get('metric'), Target: formData.get('target') });
         }
 
-        function fallbackToSandbox() {
-            if (currentRole === 'HR') {
-                currentEmployees = JSON.parse(JSON.stringify(SANDBOX_EMPLOYEES));
-                currentSubsidiaries = JSON.parse(JSON.stringify(SANDBOX_SUBSIDIARIES));
-            } else {
-                const filteredList = SANDBOX_EMPLOYEES.filter(emp => emp.Line_Manager_ID === currentRole);
-                currentEmployees = filteredList.map(emp => {
-                    const cleanObj = { ...emp };
-                    cleanObj.Basic_Salary = "[CENSORED - CORP HQ]";
-                    cleanObj.Housing_Allow = "[CENSORED - CORP HQ]";
-                    cleanObj.Transport_Allow = "[CENSORED - CORP HQ]";
-                    
-                    const iqamaStr = cleanObj.Iqama_National_ID.toString();
-                    cleanObj.Iqama_National_ID = iqamaStr.substring(0, 2) + "******" + iqamaStr.substring(iqamaStr.length - 2);
-                    return cleanObj;
-                });
+        showToast('Successfully added!');
+        closeModal();
+        renderDashboard(); // Re-render local state
+      } catch (error) {
+        showToast(error.message || 'An error occurred while saving.', 'error');
+      } finally {
+        btn.disabled = false;
+        text.textContent = 'Save';
+        spinner.classList.add('hidden');
+      }
+    });
 
-                currentSubsidiaries = SANDBOX_SUBSIDIARIES.map(sub => ({
-                    Sub_ID: sub.Sub_ID,
-                    Entity_Name: sub.Entity_Name,
-                    Nitaqat_Tier: sub.Nitaqat_Tier
-                }));
-            }
-        }
+    // Helper to prevent XSS in Vanilla JS renders
+    function escapeHtml(unsafe) {
+      if (!unsafe) return '';
+      return unsafe.toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
 
-        function switchRole(roleKey) {
-            currentRole = roleKey;
-            
-            const hrBtn = document.getElementById('btn-role-hr');
-            const sub3Btn = document.getElementById('btn-role-sub3');
-            const sub2Btn = document.getElementById('btn-role-sub2');
-
-            hrBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all " + 
-                (roleKey === 'HR' ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/10" : "text-slate-400 hover:bg-slate-800 hover:text-slate-200");
-            
-            sub3Btn.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all " + 
-                (roleKey === 'DIR_SUB03' ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/10" : "text-slate-400 hover:bg-slate-800 hover:text-slate-200");
-            
-            sub2Btn.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all " + 
-                (roleKey === 'DIR_SUB02' ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/10" : "text-slate-400 hover:bg-slate-800 hover:text-slate-200");
-
-            if (roleKey === 'HR') {
-                document.getElementById('panel-hr').classList.remove('hidden');
-                document.getElementById('panel-director').classList.add('hidden');
-                pushToast("Context loaded: Group HR Admin. Salary metrics unlocked.");
-            } else {
-                document.getElementById('panel-hr').classList.add('hidden');
-                document.getElementById('panel-director').classList.remove('hidden');
-                
-                const subName = (roleKey === 'DIR_SUB03') ? 'Future IT Engineering' : 'Riyadh Logistics';
-                document.getElementById('dir-panel-title').textContent = `${subName} Operations Portal`;
-                pushToast(`Context loaded: Director. Clean data border activated.`);
-            }
-
-            reloadSystemData();
-        }
-
-        function switchHrTab(tabId) {
-            const tabs = ['subs', 'employees', 'compliance'];
-            tabs.forEach(t => {
-                document.getElementById(`hr-tab-${t}`).classList.add('hidden');
-                document.getElementById(`btn-hr-tab-${t}`).className = "border-b-2 border-transparent pb-3 text-xs font-medium text-slate-500 hover:text-slate-800 transition";
-            });
-
-            document.getElementById(`hr-tab-${tabId}`).classList.remove('hidden');
-            document.getElementById(`btn-hr-tab-${tabId}`).className = "border-b-2 border-indigo-600 pb-3 text-xs font-semibold text-indigo-600 transition";
-        }
-
-        function renderPortalView() {
-            if (currentRole === 'HR') {
-                renderHrCommandDashboard();
-            } else {
-                renderDirectorWorkspaceDashboard();
-            }
-        }
-
-        function renderHrCommandDashboard() {
-            const headcount = currentEmployees.length;
-            const alerts = currentEmployees.filter(emp => {
-                const diffTime = new Date(emp.Iqama_Expiry) - new Date("2026-06-23");
-                return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) <= 60;
-            }).length;
-
-            let totalWages = 0;
-            let saudiCount = 0;
-
-            currentEmployees.forEach(emp => {
-                const basic = parseFloat(emp.Basic_Salary || 0);
-                const housing = parseFloat(emp.Housing_Allow || 0);
-                const transport = parseFloat(emp.Transport_Allow || 0);
-                totalWages += (basic + housing + transport);
-
-                if (emp.Nationality === "Saudi") {
-                    saudiCount++;
-                }
-            });
-
-            const saudizationRate = headcount > 0 ? ((saudiCount / headcount) * 100).toFixed(1) : "0.0";
-
-            document.getElementById('hq-kpi-count').textContent = headcount;
-            document.getElementById('hq-kpi-payroll').textContent = `SAR ${totalWages.toLocaleString()}`;
-            document.getElementById('hq-kpi-saudization').textContent = `${saudizationRate}%`;
-            document.getElementById('hq-kpi-alerts').textContent = alerts;
-
-            const subsTable = document.getElementById('table-hq-subs');
-            subsTable.innerHTML = "";
-            currentSubsidiaries.forEach(sub => {
-                let tierBadge = "";
-                if (sub.Nitaqat_Tier === "Platinum") tierBadge = "bg-slate-100 text-slate-800 border border-slate-200/80";
-                else if (sub.Nitaqat_Tier === "Green") tierBadge = "bg-emerald-50 text-emerald-700 border border-emerald-100";
-                else if (sub.Nitaqat_Tier === "Yellow") tierBadge = "bg-amber-50 text-amber-700 border border-amber-100";
-                else tierBadge = "bg-rose-50 text-rose-700 border border-rose-100";
-
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50/80 transition-colors";
-                tr.innerHTML = `
-                    <td class="p-4 pl-6 font-mono font-semibold text-slate-900">${sub.Sub_ID}</td>
-                    <td class="p-4 font-semibold text-slate-800">${sub.Entity_Name}</td>
-                    <td class="p-4 font-mono text-slate-500">${sub.Unified_Number || 'N/A'}</td>
-                    <td class="p-4 text-slate-500">${sub.ISIC4_Code || 'N/A'}</td>
-                    <td class="p-4">
-                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase ${tierBadge}">${sub.Nitaqat_Tier}</span>
-                    </td>
-                    <td class="p-4 pr-6 text-right font-semibold text-slate-900">${sub.Saudization_Rate ? sub.Saudization_Rate + '%' : 'N/A'}</td>
-                `;
-                subsTable.appendChild(tr);
-            });
-
-            const empTable = document.getElementById('table-hq-employees');
-            empTable.innerHTML = "";
-            currentEmployees.forEach(emp => {
-                const total = parseFloat(emp.Basic_Salary || 0) + parseFloat(emp.Housing_Allow || 0) + parseFloat(emp.Transport_Allow || 0);
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50/80 transition-colors";
-                tr.innerHTML = `
-                    <td class="p-4 pl-6 font-mono font-semibold text-indigo-600">${emp.Emp_ID}</td>
-                    <td class="p-4 font-mono text-slate-500 text-[11px]">${emp.Sub_ID}</td>
-                    <td class="p-4 font-semibold text-slate-800">${emp.Full_Name}</td>
-                    <td class="p-4 font-mono text-slate-500">${emp.Iqama_National_ID}</td>
-                    <td class="p-4 text-slate-600">${emp.Job_Title_Qiwa}</td>
-                    <td class="p-4 text-right font-mono text-slate-500">SAR ${parseFloat(emp.Basic_Salary || 0).toLocaleString()}</td>
-                    <td class="p-4 text-right font-mono text-slate-500">SAR ${parseFloat((emp.Housing_Allow || 0) + (emp.Transport_Allow || 0)).toLocaleString()}</td>
-                    <td class="p-4 pr-6 text-right font-mono font-semibold text-emerald-600">SAR ${total.toLocaleString()}</td>
-                `;
-                empTable.appendChild(tr);
-            });
-        }
-
-        function renderDirectorWorkspaceDashboard() {
-            const headcount = currentEmployees.length;
-            document.getElementById('dir-kpi-count').textContent = `${headcount} Staff`;
-
-            const otSelect = document.getElementById('form-ot-emp');
-            const incSelect = document.getElementById('form-inc-emp');
-            
-            otSelect.innerHTML = "";
-            incSelect.innerHTML = "";
-
-            const empTable = document.getElementById('table-dir-employees');
-            empTable.innerHTML = "";
-
-            currentEmployees.forEach(emp => {
-                const opt1 = document.createElement('option');
-                opt1.value = emp.Emp_ID;
-                opt1.textContent = `${emp.Full_Name} (${emp.Emp_ID})`;
-                otSelect.appendChild(opt1);
-
-                const opt2 = document.createElement('option');
-                opt2.value = emp.Emp_ID;
-                opt2.textContent = `${emp.Full_Name} (${emp.Emp_ID})`;
-                incSelect.appendChild(opt2);
-
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50/80 transition-colors";
-                tr.innerHTML = `
-                    <td class="p-4 pl-6 font-mono font-semibold text-slate-900">${emp.Emp_ID}</td>
-                    <td class="p-4 font-mono text-slate-400 text-[11px]">${emp.Sub_ID}</td>
-                    <td class="p-4 font-semibold text-slate-800">${emp.Full_Name}</td>
-                    <td class="p-4 font-mono text-slate-400">${emp.Iqama_National_ID}</td>
-                    <td class="p-4 text-slate-600">${emp.Job_Title_Qiwa}</td>
-                    <td class="p-4 text-right font-mono text-rose-400 font-semibold select-none bg-rose-50/10">[RESTRICTED]</td>
-                    <td class="p-4 text-right font-mono text-rose-400 font-semibold select-none bg-rose-50/10">[RESTRICTED]</td>
-                    <td class="p-4 pr-6 text-right font-mono text-rose-400 font-semibold select-none bg-rose-50/10">[RESTRICTED]</td>
-                `;
-                empTable.appendChild(tr);
-            });
-        }
-
-        function triggerWpsCsvDownload() {
-            let csv = "Record_Type,National_ID,Bank_Code,Account_Number,Basic_Wage,Housing_Allowance,Other_Allowance,Deduction,Total_Wage\n";
-            currentEmployees.forEach(emp => {
-                const basic = parseFloat(emp.Basic_Salary || 0);
-                const housing = parseFloat(emp.Housing_Allow || 0);
-                const transport = parseFloat(emp.Transport_Allow || 0);
-                const total = basic + housing + transport;
-                
-                csv += `WPSD,${emp.Iqama_National_ID},050,SA000000000000000000000,${basic.toFixed(2)},${housing.toFixed(2)},${transport.toFixed(2)},0.00,${total.toFixed(2)}\n`;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', 'KSA_Group_Mudad_WPS_Audited.csv');
-            a.click();
-            pushToast("Mudad WPS compliant CSV generated successfully! Clean data borders were enforced.");
-        }
-
-        function calculateSimulatorCompliance() {
-            const subId = document.getElementById('sim-input-sub').value;
-            const newSaudis = parseInt(document.getElementById('sim-input-saudis').value) || 0;
-            const newExpats = parseInt(document.getElementById('sim-input-expats').value) || 0;
-
-            const targetSub = SANDBOX_SUBSIDIARIES.find(sub => sub.Sub_ID === subId);
-            const subEmployees = SANDBOX_EMPLOYEES.filter(emp => emp.Sub_ID === subId);
-
-            let saudiCount = subEmployees.filter(emp => emp.Nationality === "Saudi").length + newSaudis;
-            let totalCount = subEmployees.length + newSaudis + newExpats;
-
-            let rate = ((saudiCount / totalCount) * 100).toFixed(1);
-
-            let nextTier = "Green";
-            let advice = "";
-
-            if (rate < 10) {
-                nextTier = "Red";
-                advice = "CRITICAL ALERT: Target localization drops under legal minimum boundaries. QIWA will immediately block all foreign visa issuances.";
-            } else if (rate < 20) {
-                nextTier = "Yellow";
-                advice = "WARNING: Yellow Band Nitaqat warning. Expatriate visa requests are blocked. You must register at least one Saudi national on GOSI to return to Green status.";
-            } else if (rate >= 45) {
-                nextTier = "Platinum";
-                advice = "EXCELLENT HEALTH: Firm localization rates comfortably in Platinum band. Strategic hire is approved.";
-            } else {
-                nextTier = "Green";
-                advice = "STABLE: Localization rates maintain safe standards in Medium Green. Recruitment request approved.";
-            }
-
-            document.getElementById('sim-res-headcount').textContent = `${totalCount} Staff`;
-            document.getElementById('sim-res-saudi').textContent = `${rate}%`;
-            document.getElementById('sim-res-tier').textContent = nextTier;
-            document.getElementById('sim-res-advice').textContent = advice;
-
-            document.getElementById('sim-result-card').classList.remove('hidden');
-            pushToast("Nitaqat simulation parameters evaluated safely.");
-        }
-
-        async function submitOvertimeLogs() {
-            const empId = document.getElementById('form-ot-emp').value;
-            const hours = document.getElementById('form-ot-hours').value;
-
-            if (hours > 8) {
-                pushToast("KSA Compliance Breach: Daily overtime capped at 8 hours maximum to protect corporate licenses.", "warning");
-                return;
-            }
-
-            if (systemApiUrl) {
-                try {
-                    const response = await fetch(systemApiUrl, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            action: 'logOvertime',
-                            empId: empId,
-                            overtimeHours: hours,
-                            loggedBy: currentRole
-                        })
-                    });
-                    const res = await response.json();
-                    if (res.status === 'success') {
-                        pushToast(`Overtime logged for employee ${empId}`);
-                    } else {
-                        pushToast(res.message, "error");
-                    }
-                } catch (err) {
-                    pushToast("Secure API link rejected payload. Check Apps Script endpoint configurations.", "error");
-                }
-            } else {
-                pushToast(`[Sandbox Action]: Logged ${hours} hours overtime for ${empId}. Secured in staging area.`);
-            }
-        }
-
-        function submitIncidentReport() {
-            const empId = document.getElementById('form-inc-emp').value;
-            const infraction = document.getElementById('form-inc-type').value;
-
-            pushToast(`[Disciplinary Notice]: Recorded '${infraction}' violation for ${empId}. Warning notice formatted under KSA Article 80 standards.`, "warning");
-        }
-    </script>
+    // Bootstrap
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
 </body>
 </html>
