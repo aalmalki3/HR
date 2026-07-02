@@ -8,11 +8,10 @@ const axiosInstance: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json',
+    'Content-Type': 'text/plain;charset=utf-8',
   },
 })
 
-// Request interceptor - add token to headers
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().token
@@ -24,12 +23,10 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
-// Response interceptor - handle errors
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
       useAuthStore.getState().logout()
       window.location.href = '/login'
     }
