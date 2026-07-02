@@ -1,9 +1,7 @@
 name: Build and Deploy
-
 on:
   push:
     branches: [main]
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -24,12 +22,11 @@ jobs:
       - name: Build project
         run: npm run build
         env:
-  VITE_API_BASE_URL: "https://script.google.com/macros/s/AKfycbxcsj9n7aWOCSGeJbC24_x3iZFku0F_8cUu0OW-zulzHYU0G-VfXVcUvwt40xJmnIqC/exec"
-  VITE_ENCRYPTION_KEY: "1234567891122334455667788990000"
+          VITE_API_BASE_URL: "https://script.google.com/macros/s/AKfycbxcsj9n7aWOCSGeJbC24_x3iZFku0F_8cUu0OW-zulzHYU0G-VfXVcUvwt40xJmnIqC/exec"
+          VITE_ENCRYPTION_KEY: "1234567891122334455667788990000"
       
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-          cname: aalmalki3.github.io/HR/
