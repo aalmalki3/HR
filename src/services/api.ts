@@ -18,9 +18,8 @@ async function callAction(action: string, data: any = {}): Promise<AxiosResponse
   const response = await rawClient.post('', { action, token, data })
 
   if (response.data?.success === false && response.data?.error === 'Invalid token') {
-    useAuthStore.getState().logout()
-    window.location.href = '/HR/login'
-  }
+  useAuthStore.getState().logout()
+}
 
   return response
 }
