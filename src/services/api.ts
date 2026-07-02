@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from 'axios'
 import { useAuthStore } from '../store/authStore'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ||
-  'https://script.google.com/macros/s/AKfycbyMqqUQCBklnNjITRU6bQcwBVU-PbmHU5CmvG_OvkXfI4z9OV5DHD2IjEef1oYdIdqg/exec'
+  'https://script.google.com/macros/s/AKfycbz9aDmtPoAtt1CoBU7tCf7hBaUMY1gv8l0QrXnHDLsJ5WNphDSKXTnXnD05wHDTan_V/exec'
 
 const rawClient = axios.create({
   baseURL: API_BASE_URL,
