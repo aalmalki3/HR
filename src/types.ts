@@ -45,6 +45,7 @@ export interface Employee {
   phone: string
   emergencyContactName: string
   emergencyContactPhone: string
+  status: 'active' | 'inactive' | 'terminated'
   createdAt?: string
   updatedAt?: string
 }
