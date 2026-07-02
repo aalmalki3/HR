@@ -35,7 +35,7 @@ export default function App() {
   }
   
   return (
-    <Router basename="/my-hr-system/">
+    <Router basename="/HR/">
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         
