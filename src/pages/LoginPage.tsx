@@ -27,8 +27,8 @@ export default function LoginPage() {
       })
       
       if (response.data.success) {
-        setToken(response.data.token)
-        setUser(response.data.user)
+        setToken(response.data.data.token)
+        setUser(response.data.data.user)
         navigate('/')
       } else {
         setError(response.data.error || t('auth.loginFailed'))
