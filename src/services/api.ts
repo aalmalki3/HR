@@ -1,37 +1,73 @@
-import axios, { AxiosInstance, AxiosError } from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import { useAuthStore } from '../store/authStore'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ||
   'https://script.google.com/macros/s/AKfycbwt-2Bdu0cgnB1z3ev0U5pbd1pPSSNp7u2q77m4N9Us_VKNvNuNNTdzbkbr0MebTWSU/exec'
 
-const axiosInstance: AxiosInstance = axios.create({
+const rawClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 15000,
   headers: {
     'Content-Type': 'text/plain;charset=utf-8',
   },
 })
 
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = useAuthStore.getState().token
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
+// Core: always POST to the bare GAS URL with an action name
+async function callAction(action: string, data: any = {}): Promise<AxiosResponse> {
+  const token = useAuthStore.getState().token
+  const response = await rawClient.post('', { action, token, data })
 
-axiosInstance.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError) => {
-    if (error.response?.status === 401) {
-  useAuthStore.getState().logout()
-  window.location.href = '/HR/login'
-}
-    return Promise.reject(error)
+  if (response.data?.success === false && response.data?.error === 'Invalid token') {
+    useAuthStore.getState().logout()
+    window.location.href = '/HR/login'
   }
-)
 
-export const apiClient = axiosInstance
+  return response
+}
+
+function parseUrl(url: string): { resource: string; id?: string } {
+  const path = url.split('?')[0]
+  const parts = path.replace(/^\//, '').split('/')
+  return { resource: parts[0], id: parts[1] }
+}
+
+export const apiClient = {
+  async get(url: string, config: any = {}): Promise<AxiosResponse> {
+    const { resource, id } = parseUrl(url)
+    const params = config.params || {}
+
+    if (url.startsWith('/dashboard/stats')) return callAction('getDashboardStats')
+    if (url.startsWith('/employees')) return callAction('getEmployees')
+    if (/^\/leave\/stats/.test(url)) return callAction('getLeaveStats')
+    if (/^\/leave\//.test(url)) return callAction('getLeaveData', { employeeId: id })
+    if (url.startsWith('/attendance')) return callAction('getAttendance', params)
+    if (url.startsWith('/reports/export')) return callAction('exportReport', { type: id, ...params })
+    if (url.startsWith('/reports')) return callAction('getReports', params)
+    if (url.startsWith('/settings')) return callAction('getSettings')
+
+    return callAction(resource, params)
+  },
+
+  async post(url: string, data: any = {}): Promise<AxiosResponse> {
+    if (url === '/login') return callAction('login', data)
+    if (url === '/employees') return callAction('createEmployee', data)
+    if (url === '/leave/request') return callAction('createLeaveRequest', data)
+    if (url === '/attendance/clock-in') return callAction('clockIn', data)
+    if (url === '/attendance/clock-out') return callAction('clockOut', data)
+
+    return callAction(parseUrl(url).resource, data)
+  },
+
+  async put(url: string, data: any = {}): Promise<AxiosResponse> {
+    const { resource, id } = parseUrl(url)
+    if (resource === 'employees') return callAction('updateEmployee', { ...data, id })
+    if (resource === 'settings') return callAction('updateSettings', data)
+    return callAction(`update${resource}`, { ...data, id })
+  },
+
+  async delete(url: string): Promise<AxiosResponse> {
+    const { resource, id } = parseUrl(url)
+    if (resource === 'employees') return callAction('deleteEmployee', { id })
+    return callAction(`delete${resource}`, { id })
+  },
+}
