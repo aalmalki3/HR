@@ -24,7 +24,7 @@ jobs:
       - name: Build project
         run: npm run build
         env:
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_API_BASE_URL: ${{ https://script.google.com/macros/s/AKfycbxcsj9n7aWOCSGeJbC24_x3iZFku0F_8cUu0OW-zulzHYU0G-VfXVcUvwt40xJmnIqC/exec }}
           VITE_ENCRYPTION_KEY: ${{ secrets.VITE_ENCRYPTION_KEY }}
       
       - name: Deploy to GitHub Pages
@@ -32,4 +32,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-          cname: hr-system.example.com
+          cname: aalmalki3.github.io/HR/
