@@ -30,9 +30,9 @@ export default function Sidebar() {
   )
   
   const handleLogout = () => {
-    logout()
-    window.location.href = '/login'
-  }
+  logout()
+  window.location.href = '/HR/login'
+}
   
   return (
     <div className="sidebar">
