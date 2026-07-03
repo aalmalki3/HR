@@ -31,7 +31,7 @@ jobs:
       - name: Build project
         run: npm run build
         env:
-          VITE_API_BASE_URL: "https://script.google.com/macros/s/AKfycbz9aDmtPoAtt1CoBU7tCf7hBaUMY1gv8l0QrXnHDLsJ5WNphDSKXTnXnD05wHDTan_V/exec"
+          VITE_API_BASE_URL: "https://script.google.com/macros/s/AKfycbztZBabFagM1zOqutuDAA0zaZSUJM3vyWthOBrt2ecfkB5HyuzBnJr2KdV1J_kOf409/exec"
           VITE_ENCRYPTION_KEY: "1234567891122334455667788990000"
 
       - name: Setup Pages
