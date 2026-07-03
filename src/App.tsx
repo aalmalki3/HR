@@ -1,7 +1,3 @@
-import React, { useEffect, useState } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { useAuthStore } from './store/authStore'
-import { useI18n } from './hooks/useI18n'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import EmployeesPage from './pages/EmployeesPage'
@@ -9,6 +5,9 @@ import LeavePage from './pages/LeavePage'
 import AttendancePage from './pages/AttendancePage'
 import ReportsPage from './pages/ReportsPage'
 import SettingsPage from './pages/SettingsPage'
+import DepartmentsPage from './pages/DepartmentsPage'
+import JobPostingsPage from './pages/JobPostingsPage'
+import OnboardingPage from './pages/OnboardingPage'
 import './styles/global.css'
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -69,9 +68,27 @@ export default function App() {
           </ProtectedRoute>
         } />
         
-        <Route path="/settings" element={
+<Route path="/settings" element={
           <ProtectedRoute>
             <SettingsPage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/departments" element={
+          <ProtectedRoute>
+            <DepartmentsPage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/job-postings" element={
+          <ProtectedRoute>
+            <JobPostingsPage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/onboarding" element={
+          <ProtectedRoute>
+            <OnboardingPage />
           </ProtectedRoute>
         } />
         
