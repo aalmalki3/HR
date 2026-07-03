@@ -1,123 +1,238 @@
-.dept-toolbar {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
+import React, { useState, useEffect } from 'react'
+import { useAuthStore } from '../store/authStore'
+import { useI18n } from '../hooks/useI18n'
+import Sidebar from '../components/Sidebar'
+import TopBar from '../components/TopBar'
+import { apiClient } from '../services/api'
+import '../styles/departments.css'
+
+interface Department {
+  ID: string
+  NameEn: string
+  NameAr: string
+  ParentDepartmentID: string
+  ManagerID: string
+  Budget: number
 }
 
-.dept-toolbar .search-input {
-  flex: 1;
-  min-width: 200px;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-}
+export default function DepartmentsPage() {
+  const { t } = useI18n()
+  const token = useAuthStore((state) => state.token)
+  const [departments, setDepartments] = useState<Department[]>([])
+  const [filteredDepts, setFilteredDepts] = useState<Department[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [error, setError] = useState('')
 
-.dept-table-container {
-  overflow-x: auto;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background-color: var(--bg-primary, #fff);
-}
+  const [formData, setFormData] = useState({
+    NameEn: '',
+    NameAr: '',
+    ParentDepartmentID: '',
+    ManagerID: '',
+    Budget: ''
+  })
 
-.dept-table {
-  width: 100%;
-  border-collapse: collapse;
-}
+  useEffect(() => {
+    fetchDepartments()
+  }, [token])
 
-.dept-table thead {
-  background-color: var(--color-primary);
-  color: white;
-}
+  useEffect(() => {
+    let filtered = departments
+    if (searchTerm) {
+      filtered = filtered.filter(d =>
+        d.NameEn.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        d.NameAr.includes(searchTerm)
+      )
+    }
+    setFilteredDepts(filtered)
+  }, [departments, searchTerm])
 
-.dept-table th {
-  padding: 1rem;
-  text-align: left;
-  font-weight: 600;
-}
+  async function fetchDepartments() {
+    try {
+      setLoading(true)
+      const response = await apiClient.post('/api/getDepartments', {
+        action: 'getDepartments',
+        token,
+        data: {}
+      })
+      setDepartments(response.data.data || [])
+      setError('')
+    } catch (err: any) {
+      setError('Failed to load departments')
+    } finally {
+      setLoading(false)
+    }
+  }
 
-.dept-table td {
-  padding: 1rem;
-  border-bottom: 1px solid var(--border-color);
-}
+  function handleAddClick() {
+    setEditingId(null)
+    setFormData({ NameEn: '', NameAr: '', ParentDepartmentID: '', ManagerID: '', Budget: '' })
+    setShowForm(true)
+  }
 
-.dept-table tbody tr:hover {
-  background-color: rgba(0, 0, 0, 0.02);
-}
+  function handleEditClick(dept: Department) {
+    setEditingId(dept.ID)
+    setFormData({
+      NameEn: dept.NameEn,
+      NameAr: dept.NameAr,
+      ParentDepartmentID: dept.ParentDepartmentID,
+      ManagerID: dept.ManagerID,
+      Budget: dept.Budget?.toString() || ''
+    })
+    setShowForm(true)
+  }
 
-.btn-small {
-  padding: 0.4rem 0.8rem;
-  margin-right: 0.5rem;
-  border: none;
-  border-radius: 4px;
-  background-color: #3b82f6;
-  color: white;
-  cursor: pointer;
-  font-size: 0.85rem;
-}
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    try {
+      if (editingId) {
+        await apiClient.post('/api/updateDepartment', {
+          action: 'updateDepartment',
+          token,
+          data: { ID: editingId, ...formData }
+        })
+      } else {
+        await apiClient.post('/api/addDepartment', {
+          action: 'addDepartment',
+          token,
+          data: formData
+        })
+      }
+      await fetchDepartments()
+      setShowForm(false)
+      setError('')
+    } catch (err: any) {
+      setError('Failed to save department')
+    }
+  }
 
-.btn-small:hover {
-  background-color: #2563eb;
-}
+  async function handleDelete(deptId: string) {
+    if (!confirm('Delete this department?')) return
+    try {
+      await apiClient.post('/api/deleteDepartment', {
+        action: 'deleteDepartment',
+        token,
+        data: { ID: deptId }
+      })
+      await fetchDepartments()
+      setError('')
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to delete department')
+    }
+  }
 
-.btn-small.btn-danger {
-  background-color: #ef4444;
-}
+  const getParentName = (parentId: string) => {
+    if (!parentId) return '-'
+    const parent = departments.find(d => d.ID === parentId)
+    return parent ? parent.NameEn : parentId
+  }
 
-.btn-small.btn-danger:hover {
-  background-color: #dc2626;
-}
+  return (
+    <div className="dashboard">
+      <Sidebar />
+      <div className="main-content">
+        <TopBar title={t('nav.departments') || 'Departments'} />
 
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
+        {error && <div className="alert alert-danger">{error}</div>}
 
-.modal-content {
-  background-color: var(--bg-primary, #fff);
-  border-radius: 8px;
-  padding: 2rem;
-  max-width: 500px;
-  width: 90%;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
-}
+        <div className="dept-toolbar">
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+          <button onClick={handleAddClick} className="btn btn-primary">
+            Add Department
+          </button>
+        </div>
 
-.modal-content h2 {
-  margin-bottom: 1.5rem;
-}
+        {loading ? (
+          <div className="spinner"></div>
+        ) : (
+          <div className="dept-table-container">
+            <table className="dept-table">
+              <thead>
+                <tr>
+                  <th>Name (EN)</th>
+                  <th>Name (AR)</th>
+                  <th>Parent Dept</th>
+                  <th>Manager</th>
+                  <th>Budget</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredDepts.map((dept) => (
+                  <tr key={dept.ID}>
+                    <td>{dept.NameEn}</td>
+                    <td>{dept.NameAr}</td>
+                    <td>{getParentName(dept.ParentDepartmentID)}</td>
+                    <td>{dept.ManagerID || '-'}</td>
+                    <td>{dept.Budget || 0}</td>
+                    <td>
+                      <button onClick={() => handleEditClick(dept)} className="btn-small">Edit</button>
+                      <button onClick={() => handleDelete(dept.ID)} className="btn-small btn-danger">Delete</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-.modal-content form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.modal-content input,
-.modal-content select,
-.modal-content textarea {
-  padding: 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-
-.form-actions button {
-  flex: 1;
-}
-
-@media (max-width: 768px) {
-  .dept-toolbar { flex-direction: column; }
-  .dept-table { font-size: 0.875rem; }
-  .dept-table th, .dept-table td { padding: 0.75rem; }
+        {showForm && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h2>{editingId ? 'Edit Department' : 'Add Department'}</h2>
+              <form onSubmit={handleSubmit}>
+                <input
+                  type="text"
+                  placeholder="Department Name (English)"
+                  value={formData.NameEn}
+                  onChange={(e) => setFormData({ ...formData, NameEn: e.target.value })}
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="اسم القسم (عربي)"
+                  value={formData.NameAr}
+                  onChange={(e) => setFormData({ ...formData, NameAr: e.target.value })}
+                  required
+                />
+                <select
+                  value={formData.ParentDepartmentID}
+                  onChange={(e) => setFormData({ ...formData, ParentDepartmentID: e.target.value })}
+                >
+                  <option value="">No Parent (Top Level)</option>
+                  {departments.filter(d => d.ID !== editingId).map(d => (
+                    <option key={d.ID} value={d.ID}>{d.NameEn}</option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  placeholder="Manager ID (optional)"
+                  value={formData.ManagerID}
+                  onChange={(e) => setFormData({ ...formData, ManagerID: e.target.value })}
+                />
+                <input
+                  type="number"
+                  placeholder="Budget (optional)"
+                  value={formData.Budget}
+                  onChange={(e) => setFormData({ ...formData, Budget: e.target.value })}
+                />
+                <div className="form-actions">
+                  <button type="submit" className="btn btn-primary">Save</button>
+                  <button type="button" onClick={() => setShowForm(false)} className="btn btn-secondary">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
