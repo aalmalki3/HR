@@ -51,22 +51,31 @@ export default function ReportsPage() {
   
   const handleExportPDF = async () => {
     try {
-      const response = await apiClient.get(`/reports/export/${activeReport}`, {
-        params: {
-          from: dateFrom,
-          to: dateTo,
-        },
-        responseType: 'blob'
+      setIsLoading(true)
+      const response = await apiClient.post('/api/exportReportPDF', {
+        action: 'exportReportPDF',
+        token: localStorage.getItem('token') || '',
+        data: {
+          reportType: activeReport,
+          fileName: `Report_${activeReport}_${new Date().toISOString().split('T')[0]}.csv`
+        }
       })
       
-      const url = window.URL.createObjectURL(new Blob([response.data]))
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', `${activeReport}-report.pdf`)
-      document.body.appendChild(link)
-      link.click()
+      if (response.data.data?.data) {
+        const blob = new Blob([response.data.data.data], { type: 'text/csv' })
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = response.data.data.fileName
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+      }
     } catch (err: any) {
       setError(err.message)
+    } finally {
+      setIsLoading(false)
     }
   }
   
