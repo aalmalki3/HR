@@ -1,3 +1,7 @@
+import React, { useEffect, useState } from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { useAuthStore } from './store/authStore'
+import { useI18n } from './hooks/useI18n'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import EmployeesPage from './pages/EmployeesPage'
