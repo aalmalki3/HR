@@ -1,234 +1,86 @@
 import React, { useState, useEffect } from 'react'
-import { useAuthStore } from '../store/authStore'
 import { useI18n } from '../hooks/useI18n'
+import { useAuthStore } from '../store/authStore'
 import Sidebar from '../components/Sidebar'
 import TopBar from '../components/TopBar'
 import { apiClient } from '../services/api'
-import '../styles/departments.css'
+import '../styles/dashboard.css'
 
-interface Department {
-  ID: string
-  NameEn: string
-  NameAr: string
-  ParentDepartmentID: string
-  ManagerID: string
-  Budget: number
+interface DashboardStats {
+  totalEmployees: number
+  activeLeaves: number
+  attendanceToday: number
+  departments: number
+  pendingLeaveRequests: number
 }
 
-export default function DepartmentsPage() {
+export default function DashboardPage() {
   const { t } = useI18n()
   const token = useAuthStore((state) => state.token)
-  const [departments, setDepartments] = useState<Department[]>([])
-  const [filteredDepts, setFilteredDepts] = useState<Department[]>([])
-  const [loading, setLoading] = useState(true)
-  const [showForm, setShowForm] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState('')
+  const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const [formData, setFormData] = useState({
-    NameEn: '',
-    NameAr: '',
-    ParentDepartmentID: '',
-    ManagerID: '',
-    Budget: ''
-  })
-
   useEffect(() => {
-    fetchDepartments()
+    fetchStats()
   }, [token])
 
-  useEffect(() => {
-    let filtered = departments
-    if (searchTerm) {
-      filtered = filtered.filter(d =>
-        d.NameEn.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        d.NameAr.includes(searchTerm)
-      )
-    }
-    setFilteredDepts(filtered)
-  }, [departments, searchTerm])
-
-  async function fetchDepartments() {
+  async function fetchStats() {
     try {
-      setLoading(true)
-      const response = await apiClient.post('/api/getDepartments', {
-        action: 'getDepartments',
+      setIsLoading(true)
+      const response = await apiClient.post('/api/getDashboardStats', {
+        action: 'getDashboardStats',
         token,
         data: {}
       })
-      setDepartments(response.data.data || [])
-      setError('')
-    } catch (err: any) {
-      setError('Failed to load departments')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  function handleAddClick() {
-    setEditingId(null)
-    setFormData({ NameEn: '', NameAr: '', ParentDepartmentID: '', ManagerID: '', Budget: '' })
-    setShowForm(true)
-  }
-
-  function handleEditClick(dept: Department) {
-    setEditingId(dept.ID)
-    setFormData({
-      NameEn: dept.NameEn,
-      NameAr: dept.NameAr,
-      ParentDepartmentID: dept.ParentDepartmentID,
-      ManagerID: dept.ManagerID,
-      Budget: dept.Budget?.toString() || ''
-    })
-    setShowForm(true)
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    try {
-      if (editingId) {
-        await apiClient.post('/api/updateDepartment', {
-          action: 'updateDepartment',
-          token,
-          data: { ID: editingId, ...formData }
-        })
+      if (response.data.success) {
+        setStats(response.data.data)
       } else {
-        await apiClient.post('/api/addDepartment', {
-          action: 'addDepartment',
-          token,
-          data: formData
-        })
+        setError(response.data.error)
       }
-      await fetchDepartments()
-      setShowForm(false)
-      setError('')
     } catch (err: any) {
-      setError('Failed to save department')
+      setError(err.message)
+    } finally {
+      setIsLoading(false)
     }
-  }
-
-  async function handleDelete(deptId: string) {
-    if (!confirm('Delete this department?')) return
-    try {
-      await apiClient.post('/api/deleteDepartment', {
-        action: 'deleteDepartment',
-        token,
-        data: { ID: deptId }
-      })
-      await fetchDepartments()
-      setError('')
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to delete department')
-    }
-  }
-
-  const getParentName = (parentId: string) => {
-    if (!parentId) return '-'
-    const parent = departments.find(d => d.ID === parentId)
-    return parent ? parent.NameEn : parentId
   }
 
   return (
     <div className="dashboard">
       <Sidebar />
+
       <div className="main-content">
-        <TopBar title={t('nav.departments') || 'Departments'} />
+        <TopBar title={t('nav.dashboard')} />
 
         {error && <div className="alert alert-danger">{error}</div>}
 
-        <div className="dept-toolbar">
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-          <button onClick={handleAddClick} className="btn btn-primary">
-            Add Department
-          </button>
-        </div>
-
-        {loading ? (
+        {isLoading ? (
           <div className="spinner"></div>
         ) : (
-          <div className="dept-table-container">
-            <table className="dept-table">
-              <thead>
-                <tr>
-                  <th>Name (EN)</th>
-                  <th>Name (AR)</th>
-                  <th>Parent Dept</th>
-                  <th>Manager</th>
-                  <th>Budget</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredDepts.map((dept) => (
-                  <tr key={dept.ID}>
-                    <td>{dept.NameEn}</td>
-                    <td>{dept.NameAr}</td>
-                    <td>{getParentName(dept.ParentDepartmentID)}</td>
-                    <td>{dept.ManagerID || '-'}</td>
-                    <td>{dept.Budget || 0}</td>
-                    <td>
-                      <button onClick={() => handleEditClick(dept)} className="btn-small">Edit</button>
-                      <button onClick={() => handleDelete(dept.ID)} className="btn-small btn-danger">Delete</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+          <div className="dashboard-grid">
+            <div className="stat-card">
+              <div className="stat-label">{t('dashboard.totalEmployees', 'Total Employees')}</div>
+              <div className="stat-value">{stats?.totalEmployees ?? '--'}</div>
+            </div>
 
-        {showForm && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <h2>{editingId ? 'Edit Department' : 'Add Department'}</h2>
-              <form onSubmit={handleSubmit}>
-                <input
-                  type="text"
-                  placeholder="Department Name (English)"
-                  value={formData.NameEn}
-                  onChange={(e) => setFormData({ ...formData, NameEn: e.target.value })}
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="اسم القسم (عربي)"
-                  value={formData.NameAr}
-                  onChange={(e) => setFormData({ ...formData, NameAr: e.target.value })}
-                  required
-                />
-                <select
-                  value={formData.ParentDepartmentID}
-                  onChange={(e) => setFormData({ ...formData, ParentDepartmentID: e.target.value })}
-                >
-                  <option value="">No Parent (Top Level)</option>
-                  {departments.filter(d => d.ID !== editingId).map(d => (
-                    <option key={d.ID} value={d.ID}>{d.NameEn}</option>
-                  ))}
-                </select>
-                <input
-                  type="text"
-                  placeholder="Manager ID (optional)"
-                  value={formData.ManagerID}
-                  onChange={(e) => setFormData({ ...formData, ManagerID: e.target.value })}
-                />
-                <input
-                  type="number"
-                  placeholder="Budget (optional)"
-                  value={formData.Budget}
-                  onChange={(e) => setFormData({ ...formData, Budget: e.target.value })}
-                />
-                <div className="form-actions">
-                  <button type="submit" className="btn btn-primary">Save</button>
-                  <button type="button" onClick={() => setShowForm(false)} className="btn btn-secondary">Cancel</button>
-                </div>
-              </form>
+            <div className="stat-card">
+              <div className="stat-label">{t('dashboard.activeLeaves', 'Active Leaves')}</div>
+              <div className="stat-value">{stats?.activeLeaves ?? '--'}</div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-label">{t('dashboard.attendanceToday', 'Present Today')}</div>
+              <div className="stat-value">{stats?.attendanceToday ?? '--'}</div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-label">{t('dashboard.departments', 'Departments')}</div>
+              <div className="stat-value">{stats?.departments ?? '--'}</div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-label">{t('dashboard.pendingLeaveRequests', 'Pending Leave Requests')}</div>
+              <div className="stat-value">{stats?.pendingLeaveRequests ?? '--'}</div>
             </div>
           </div>
         )}
