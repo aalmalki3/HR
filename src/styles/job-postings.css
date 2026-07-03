@@ -1,0 +1,141 @@
+.jp-toolbar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.jp-toolbar .search-input,
+.jp-toolbar .filter-select {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.jp-toolbar .search-input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.jp-table-container {
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--bg-primary, #fff);
+}
+
+.jp-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.jp-table thead {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.jp-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.jp-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.btn-small {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #3b82f6;
+  color: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.jp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.jp-card {
+  background-color: var(--bg-primary, #fff);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: box-shadow 0.3s ease;
+}
+
+.jp-card:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.jp-card h3 {
+  margin: 0 0 0.5rem 0;
+}
+
+.jp-card .ar-title {
+  color: var(--text-secondary, #666);
+  margin-bottom: 1rem;
+}
+
+.jp-card .description {
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.jp-card .salary {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: var(--bg-primary, #fff);
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal-content input,
+.modal-content textarea {
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.modal-content textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.form-actions button {
+  flex: 1;
+}
