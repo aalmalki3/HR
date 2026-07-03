@@ -133,7 +133,7 @@ export default function DepartmentsPage() {
     <div className="dashboard">
       <Sidebar />
       <div className="main-content">
-        <TopBar title={t('nav.departments') || 'Departments'} />
+        <TopBar title={t('nav.departments', 'Departments')} />
 
         {error && <div className="alert alert-danger">{error}</div>}
 
